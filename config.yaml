@@ -1,0 +1,124 @@
+app:
+  port: 9090
+  ca_bundle: /etc/pki/tls/certs/ca-bundle.crt
+
+cm:
+  username: admin
+  password: changeme
+  cluster_name: CDP-Base
+  request_timeout: 120
+
+clusters:
+  - id: cluster1
+    color: "#4f8ef7"
+    cm:
+      host: cm1.internal
+      port: 7183
+      api_version: v57
+    coordinators:
+      ops:
+        - host: ops-coord1.cl1.internal
+          port: 25000
+        - host: ops-coord2.cl1.internal
+          port: 25000
+      user:
+        - host: user-coord1.cl1.internal
+          port: 25000
+        - host: user-coord2.cl1.internal
+          port: 25000
+        - host: user-coord3.cl1.internal
+          port: 25000
+
+  - id: cluster2
+    color: "#2dd4bf"
+    cm:
+      host: cm2.internal
+      port: 7183
+      api_version: v57
+    coordinators:
+      ops:
+        - host: ops-coord1.cl2.internal
+          port: 25000
+      user:
+        - host: user-coord1.cl2.internal
+          port: 25000
+        - host: user-coord2.cl2.internal
+          port: 25000
+        - host: user-coord3.cl2.internal
+          port: 25000
+        - host: user-coord4.cl2.internal
+          port: 25000
+        - host: user-coord5.cl2.internal
+          port: 25000
+
+  - id: cluster3
+    color: "#a78bfa"
+    cm:
+      host: cm3.internal
+      port: 7183
+      api_version: v54
+    coordinators:
+      ops:
+        - host: ops-coord1.cl3.internal
+          port: 25000
+      user:
+        - host: user-coord1.cl3.internal
+          port: 25000
+        - host: user-coord2.cl3.internal
+          port: 25000
+        - host: user-coord3.cl3.internal
+          port: 25000
+        - host: user-coord4.cl3.internal
+          port: 25000
+        - host: user-coord5.cl3.internal
+          port: 25000
+        - host: user-coord6.cl3.internal
+          port: 25000
+        - host: user-coord7.cl3.internal
+          port: 25000
+        - host: user-coord8.cl3.internal
+          port: 25000
+
+  - id: cluster4
+    color: "#fb923c"
+    cm:
+      host: cm4.internal
+      port: 7183
+      api_version: v57
+    coordinators:
+      ops:
+        - host: ops-coord1.cl4.internal
+          port: 25000
+      user:
+        - host: user-coord1.cl4.internal
+          port: 25000
+        - host: user-coord2.cl4.internal
+          port: 25000
+        - host: user-coord3.cl4.internal
+          port: 25000
+        - host: user-coord4.cl4.internal
+          port: 25000
+
+  - id: cluster5
+    color: "#f472b6"
+    cm:
+      host: cm5.internal
+      port: 7183
+      api_version: v57
+    coordinators:
+      ops:
+        - host: ops-coord1.cl5.internal
+          port: 25000
+      user:
+        - host: user-coord1.cl5.internal
+          port: 25000
+        - host: user-coord2.cl5.internal
+          port: 25000
+        - host: user-coord3.cl5.internal
+          port: 25000
+        - host: user-coord4.cl5.internal
+          port: 25000
+        - host: user-coord5.cl5.internal
+          port: 25000
+        - host: user-coord6.cl5.internal
+          port: 25000

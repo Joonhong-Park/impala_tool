@@ -27,3 +27,19 @@ function esc(s) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
+/* ── 클러스터 색상 (qmLoadSidebar에서 채워짐, QM·QE 공유) ── */
+const _CLUSTER_COLOR = new Map();
+
+function _hexToRgba(hex, alpha) {
+  const [r, g, b] = hex.replace('#', '').match(/../g).map(h => parseInt(h, 16));
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function _clFg(id)  { return _CLUSTER_COLOR.get(id) || '#4361ee'; }
+function _clBg(id)  { return _hexToRgba(_clFg(id), 0.12); }
+
+const _STATE_BADGE_CLS = {
+  FINISHED: 'badge-finished', RUNNING: 'badge-running',
+  EXCEPTION: 'badge-exception', QUEUED: 'badge-queued',
+};

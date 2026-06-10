@@ -12,21 +12,6 @@ let _sortAsc       = false;
 let _activeHours   = 1;
 let _es            = null;
 
-/* 클러스터 색상 — qmLoadSidebar에서 API 응답으로 채워짐 */
-const _CLUSTER_COLOR = new Map();
-
-function _hexToRgba(hex, alpha) {
-  const [r, g, b] = hex.replace('#', '').match(/../g).map(h => parseInt(h, 16));
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-function _clFg(id)  { return _CLUSTER_COLOR.get(id) || '#4361ee'; }
-function _clBg(id)  { return _hexToRgba(_clFg(id), 0.12); }
-const _STATE_BADGE_CLS = {
-  FINISHED: 'badge-finished', RUNNING: 'badge-running',
-  EXCEPTION: 'badge-exception', QUEUED: 'badge-queued',
-};
-
 /* duration(ms) → 사람이 읽는 문자열 */
 function formatDuration(ms) {
   if (ms == null) return '—';

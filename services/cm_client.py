@@ -30,7 +30,7 @@ def build_filter(
     query_state: Optional[str] = None,
     conditions: Optional[list[dict]] = None,
 ) -> str:
-    """CM API에 보낼 filter 문자열을 조합한다."""
+    """적용된 필터 조건을 표시용 문자열로 조합한다. CM API에는 전달하지 않음."""
     parts: list[str] = []
     if query_type:
         parts.append(f'queryType = "{query_type}"')
@@ -62,11 +62,17 @@ def resolve_time_range(
     to_time: Optional[str] = None,
 ) -> tuple[str, str]:
     """from/to가 모두 지정되면 그대로 반환, 아니면 hours 기준 ISO 문자열로 계산.
-    to_time만 지정된 경우 해당 시각을 기준으로 hours만큼 이전을 from으로 계산.
+    - from_time + to_time: 그대로 반환
+    - to_time만: to 기준 hours 이전을 from으로
+    - from_time만: from 기준 hours 이후를 to로
+    - 둘 다 없음: 현재 시각 기준 최근 hours
     """
+    span = hours if hours else 24
     if from_time and to_time:
         return from_time, to_time
-    span = hours if hours else 24
+    if from_time:
+        from_dt = _parse_dt(from_time)
+        return from_time, (from_dt + timedelta(hours=span)).isoformat()
     if to_time:
         end_dt = _parse_dt(to_time)
         return (end_dt - timedelta(hours=span)).isoformat(), to_time

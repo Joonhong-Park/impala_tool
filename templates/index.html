@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Impala Tool</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  background: #f4f6fb; color: #1a1d2e; font-size: 13px;
+  display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+}
+
+/* ── 앱 헤더 ── */
+#app-header {
+  background: #fff; border-bottom: 1px solid #e5e9f2;
+  padding: 0 24px; display: flex; align-items: stretch; height: 48px;
+  box-shadow: 0 1px 4px rgba(60,80,150,.06); flex-shrink: 0;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  padding-right: 24px; border-right: 1px solid #e5e9f2; margin-right: 8px;
+}
+.brand .logo {
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg,#4361ee,#7b9ef7);
+  border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: #fff;
+  box-shadow: 0 2px 8px rgba(67,97,238,.35);
+}
+.brand span { font-size: 14px; font-weight: 700; color: #1a1d2e; }
+.app-tab {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 20px; height: 100%; cursor: pointer; color: #8892a4;
+  font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent;
+  transition: color .15s; user-select: none;
+}
+.app-tab:hover { color: #4361ee; }
+.app-tab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
+
+/* ── 탭 콘텐츠 ── */
+.tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.tab-content.active { display: flex; }
+
+/* ── 공통 버튼 ── */
+.btn { padding: 6px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; height: 32px; transition: all .15s; }
+.btn-primary { background: #4361ee; color: #fff; box-shadow: 0 2px 8px rgba(67,97,238,.3); }
+.btn-primary:hover { background: #3451d1; }
+.btn-secondary { background: #f0f3ff; color: #4361ee; }
+.btn-secondary:hover { background: #e0e6ff; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── 공통 배지 ── */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.badge-finished  { background: #e6f4ef; color: #1a7a4a; }
+.badge-running   { background: #e8eeff; color: #3451d1; }
+.badge-exception { background: #fde8e8; color: #c0392b; }
+.badge-queued    { background: #fff3e0; color: #e67e22; }
+
+/* ── 공통 탭 바 ── */
+.tab-bar {
+  background: #fff; border-bottom: 1px solid #e5e9f2;
+  padding: 0 24px; display: flex; overflow-x: auto; flex-shrink: 0;
+}
+.stab {
+  padding: 9px 16px; cursor: pointer; color: #8892a4; font-size: 12px; font-weight: 500;
+  border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s;
+}
+.stab:hover { color: #4361ee; }
+.stab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
+.stab .cnt {
+  margin-left: 5px; background: #f0f3ff; color: #8892a4;
+  font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600;
+}
+.stab.active .cnt { background: #dde6ff; color: #4361ee; }
+
+/* ── 공통 테이블 ── */
+.tbl-wrap { overflow: auto; flex: 1; }
+table { width: 100%; border-collapse: collapse; }
+thead { position: sticky; top: 0; background: #f8faff; z-index: 1; }
+th {
+  padding: 9px 12px; text-align: left; font-size: 11px; color: #8892a4;
+  text-transform: uppercase; letter-spacing: .4px; font-weight: 700;
+  border-bottom: 1.5px solid #e5e9f2;
+}
+td { padding: 9px 12px; border-bottom: 1px solid #f0f3f9; font-size: 12px; vertical-align: middle; background: #fff; }
+tr:hover td { background: #f8faff; }
+.mono { font-family: 'Courier New', monospace; font-size: 11px; color: #4361ee; cursor: pointer; }
+.stmt-cell { max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #8892a4; }
+.sortable { cursor: pointer; }
+.sortable:hover { color: #4361ee; }
+
+/* ════════════════════════════
+   QUERY EXPLORER
+   ════════════════════════════ */
+.filters {
+  background: #fff; border-bottom: 1px solid #e5e9f2;
+  padding: 12px 24px; display: flex; flex-direction: column; gap: 10px;
+  flex-shrink: 0; box-shadow: 0 1px 3px rgba(60,80,150,.04);
+}
+.filter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.fg { display: flex; flex-direction: column; gap: 4px; }
+.fg label { font-size: 11px; color: #8892a4; font-weight: 600; letter-spacing: .3px; }
+.fg input, .fg select {
+  background: #f8faff; border: 1.5px solid #e2e8f4; color: #1a1d2e;
+  padding: 6px 10px; border-radius: 6px; font-size: 12px; height: 32px; transition: border-color .15s;
+}
+.fg input:focus, .fg select:focus { outline: none; border-color: #4361ee; background: #fff; box-shadow: 0 0 0 3px rgba(67,97,238,.1); }
+.fg input { min-width: 150px; }
+.fg select { min-width: 110px; }
+.presets { display: flex; gap: 4px; }
+.preset-btn {
+  padding: 5px 10px; border: 1.5px solid #e2e8f4; border-radius: 6px;
+  background: #f8faff; color: #8892a4; font-size: 11px; cursor: pointer; font-weight: 600; transition: all .15s;
+}
+.preset-btn:hover { border-color: #4361ee; color: #4361ee; background: #f0f3ff; }
+.preset-btn.active { background: #4361ee; color: #fff; border-color: #4361ee; }
+.cond-area { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cond-row { display: flex; gap: 4px; align-items: center; }
+.cond-val {
+  background: #f8faff; border: 1.5px solid #e2e8f4; color: #1a1d2e;
+  padding: 6px 10px; border-radius: 6px; font-size: 12px; height: 32px;
+}
+.cond-val:focus { outline: none; border-color: #4361ee; }
+.btn-add-cond {
+  background: none; border: 1.5px dashed #4361ee; color: #4361ee;
+  cursor: pointer; font-size: 11px; padding: 1px 10px; border-radius: 6px; height: 24px; font-weight: 600;
+}
+.btn-add-cond:hover { background: #f0f3ff; }
+.cond-remove {
+  background: none; border: 1.5px solid #e2e8f4; color: #b0b8cc;
+  cursor: pointer; font-size: 14px; padding: 0 7px; border-radius: 6px; height: 32px;
+}
+.cond-remove:hover { color: #c0392b; border-color: #fca5a5; }
+#qe-progress {
+  padding: 8px 24px; background: #fffbeb; border-bottom: 1px solid #fde68a;
+  color: #92400e; font-size: 12px; display: none;
+}
+#qe-progress.show { display: block; }
+.progress-bar-outer { background: #fde68a; border-radius: 4px; height: 4px; margin-top: 4px; }
+.progress-bar-inner { background: #f59e0b; height: 100%; border-radius: 4px; transition: width .3s; }
+
+#qe-summary {
+  padding: 6px 24px; background: #fff; border-bottom: 1px solid #e5e9f2;
+  font-size: 11px; color: #8892a4; display: flex; align-items: center; gap: 16px;
+}
+
+.expand-btn { cursor: pointer; color: #b0b8cc; user-select: none; }
+tr.expanded .expand-btn { color: #4361ee; }
+.expand-row td { padding: 0; }
+.expand-content {
+  padding: 10px 20px; background: #f8faff; border-bottom: 1px solid #e5e9f2;
+  font-family: monospace; font-size: 11px; white-space: pre-wrap; word-break: break-all;
+  color: #5a6278;
+}
+.ok-block  { background: #e6f4ef; color: #1a7a4a; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.err-block { background: #fde8e8; color: #c0392b; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+
+/* ════════════════════════════
+   QUERY MONITORING
+   ════════════════════════════ */
+#qm-wrap { display: flex; flex: 1; overflow: hidden; }
+
+#qm-sidebar {
+  width: 210px; flex-shrink: 0; background: #fff;
+  border-right: 1px solid #e5e9f2; display: flex; flex-direction: column;
+  overflow-y: auto; box-shadow: 1px 0 4px rgba(60,80,150,.04);
+}
+.sb-group-title {
+  padding: 12px 16px 6px; font-size: 10px; color: #b0b8cc;
+  text-transform: uppercase; letter-spacing: .8px; font-weight: 700;
+}
+.cluster-hdr {
+  padding: 6px 16px; font-size: 12px; color: #5a6278; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; user-select: none; font-weight: 500;
+  transition: background .1s;
+}
+.cluster-hdr:hover { background: #f8faff; }
+.cluster-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cluster-hdr .chev { margin-left: auto; font-size: 10px; color: #b0b8cc; }
+.coord-item {
+  padding: 5px 16px 5px 30px; font-size: 11px; color: #8892a4; cursor: pointer;
+  border-left: 2px solid transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: all .1s;
+}
+.coord-item:hover { background: #f8faff; color: #4361ee; }
+.coord-item.active { background: #f0f4ff; font-weight: 600; }
+
+#qm-infobar {
+  background: #fff; border-bottom: 1px solid #e5e9f2;
+  padding: 14px 24px; display: flex; align-items: center; gap: 24px; flex-shrink: 0;
+  border-left: 4px solid #4361ee; box-shadow: 0 1px 4px rgba(60,80,150,.06);
+}
+#qm-coord-name { font-size: 15px; font-weight: 700; color: #1a1d2e; min-width: 200px; }
+.ib-stat { display: flex; flex-direction: column; gap: 2px; }
+.ib-stat .val { font-size: 22px; font-weight: 800; line-height: 1; }
+.ib-stat .lbl { font-size: 10px; color: #b0b8cc; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+.ib-divider { width: 1px; height: 36px; background: #e5e9f2; }
+#qm-infobar .spacer { flex: 1; }
+.btn-refresh {
+  padding: 7px 16px; border: 1.5px solid #e2e8f4; border-radius: 7px;
+  background: #f8faff; color: #5a6278; font-size: 12px; cursor: pointer; font-weight: 600; transition: all .15s;
+}
+.btn-refresh:hover { border-color: #4361ee; color: #4361ee; background: #f0f3ff; }
+
+#qm-sections {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 12px; background: #f4f6fb;
+}
+.qm-section {
+  background: #fff; border: 1px solid #e5e9f2; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(60,80,150,.05);
+}
+.qm-sec-hdr {
+  padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+  cursor: pointer; user-select: none; border-bottom: 1px solid #f0f3f9; transition: background .1s;
+}
+.qm-sec-hdr:hover { background: #f8faff; }
+.qm-sec-title { font-size: 13px; font-weight: 700; color: #1a1d2e; }
+.sec-cnt {
+  background: #f0f3f9; color: #8892a4; font-size: 11px;
+  padding: 2px 8px; border-radius: 12px; font-weight: 700;
+}
+.sec-cnt.blue   { background: #e0e8ff; color: #3451d1; }
+.sec-cnt.amber  { background: #fff3e0; color: #e67e22; }
+.sec-cnt.green  { background: #e8f6ef; color: #27ae60; }
+.qm-sec-hdr .chev { margin-left: auto; color: #b0b8cc; font-size: 12px; transition: transform .2s; }
+.qm-sec-body.collapsed { display: none; }
+.qm-tbl-wrap { overflow-x: auto; }
+.qm-tbl { width: 100%; border-collapse: collapse; }
+.qm-tbl th {
+  padding: 8px 12px; text-align: left; font-size: 10px; color: #b0b8cc;
+  text-transform: uppercase; letter-spacing: .4px; font-weight: 700;
+  border-bottom: 1px solid #f0f3f9; background: #fafbfe;
+}
+.qm-tbl td { padding: 8px 12px; border-bottom: 1px solid #f4f6fb; font-size: 12px; vertical-align: middle; }
+.qm-tbl tr:hover td { background: #f8faff; }
+.qm-tbl tr:last-child td { border-bottom: none; }
+.prog-wrap { background: #e5e9f2; border-radius: 4px; height: 5px; width: 64px; display: inline-block; vertical-align: middle; margin-right: 6px; }
+.prog-fill { height: 100%; background: linear-gradient(90deg,#4361ee,#7b9ef7); border-radius: 4px; }
+.btn-cancel {
+  background: none; border: 1.5px solid #fca5a5; color: #dc2626;
+  font-size: 10px; padding: 3px 9px; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all .15s;
+}
+.btn-cancel:hover { background: #fef2f2; }
+.btn-cancel:disabled { opacity: .5; cursor: not-allowed; }
+.badge-sm { padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+.badge-running-sm   { background: #e8eeff; color: #3451d1; }
+.badge-finished-sm  { background: #e6f4ef; color: #1a7a4a; }
+.badge-exception-sm { background: #fde8e8; color: #c0392b; }
+.badge-waiting-sm   { background: #fff3e0; color: #e67e22; }
+
+/* 모달 */
+#modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center;
+}
+#modal-overlay.show { display: flex; }
+#modal {
+  background: #fff; border-radius: 12px; width: 860px; max-width: 95vw; max-height: 85vh;
+  display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+#modal-header {
+  padding: 16px 20px; border-bottom: 1px solid #e5e9f2;
+  display: flex; align-items: center; gap: 12px;
+}
+#modal-query-id { font-family: monospace; font-size: 13px; color: #4361ee; font-weight: 600; }
+#modal-close {
+  margin-left: auto; background: none; border: none; font-size: 20px;
+  cursor: pointer; color: #8892a4; line-height: 1;
+}
+#modal-close:hover { color: #1a1d2e; }
+.modal-tabs { display: flex; border-bottom: 1px solid #e5e9f2; padding: 0 20px; }
+.modal-tab {
+  padding: 9px 16px; cursor: pointer; color: #8892a4; font-size: 12px; font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+.modal-tab:hover { color: #4361ee; }
+.modal-tab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
+.modal-body { flex: 1; overflow: auto; padding: 20px; }
+.modal-pane { display: none; }
+.modal-pane.active { display: block; }
+.meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.meta-item { display: flex; flex-direction: column; gap: 3px; }
+.meta-item .mk { font-size: 10px; color: #8892a4; text-transform: uppercase; letter-spacing: .4px; font-weight: 600; }
+.meta-item .mv { font-size: 13px; color: #1a1d2e; font-weight: 500; }
+.profile-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+.btn-dl {
+  padding: 5px 14px; border: 1.5px solid #e2e8f4; border-radius: 6px;
+  background: #f8faff; color: #5a6278; font-size: 11px; cursor: pointer; font-weight: 600; transition: all .15s;
+}
+.btn-dl:hover { border-color: #4361ee; color: #4361ee; }
+pre.profile-pre {
+  background: #f8faff; border: 1px solid #e5e9f2; border-radius: 6px;
+  padding: 14px; font-size: 11px; white-space: pre-wrap; word-break: break-all;
+  color: #3a4060; line-height: 1.6; max-height: 420px; overflow: auto;
+}
+
+/* 토스트 */
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: #fff; border: 1.5px solid #86efac; color: #15803d;
+  padding: 11px 20px; border-radius: 9px; font-size: 12px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(60,80,150,.15); display: none; z-index: 9999;
+}
+#toast.show { display: block; }
+#toast.err { border-color: #fca5a5; color: #dc2626; }
+</style>
+</head>
+<body>
+
+<!-- ── 앱 헤더 ── -->
+<div id="app-header">
+  <div class="brand">
+    <div class="logo">I</div>
+    <span>Impala Tool</span>
+  </div>
+  <div class="app-tab active" id="tab-qe" onclick="switchTab('qe')">🔍 Query Explorer</div>
+  <div class="app-tab" id="tab-qm" onclick="switchTab('qm')">📡 Query Monitoring</div>
+</div>
+
+<!-- ════════ QUERY EXPLORER ════════ -->
+<div class="tab-content active" id="content-qe">
+  <div class="filters">
+    <div class="filter-row">
+      <div class="fg">
+        <label>사용자</label>
+        <input type="text" id="qe-user" placeholder="analyst_kim">
+      </div>
+      <div class="fg">
+        <label>검색 조건</label>
+        <div class="cond-area" id="qe-conds">
+          <!-- JS로 조건 블록 추가 -->
+        </div>
+        <button class="btn-add-cond" id="qe-add-cond">+ 추가</button>
+      </div>
+      <div class="fg">
+        <label>빠른 범위</label>
+        <div class="presets" id="qe-presets">
+          <button class="preset-btn active" data-h="1">1h</button>
+          <button class="preset-btn" data-h="3">3h</button>
+          <button class="preset-btn" data-h="6">6h</button>
+          <button class="preset-btn" data-h="12">12h</button>
+          <button class="preset-btn" data-h="24">1d</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label>시작</label>
+        <input type="text" id="qe-from" placeholder="2026-06-09 00:00" style="min-width:172px">
+      </div>
+      <div class="fg">
+        <label>종료</label>
+        <input type="text" id="qe-to" placeholder="2026-06-09 23:59" style="min-width:172px">
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="fg">
+        <label>클러스터</label>
+        <select id="qe-cluster-select">
+          <option value="">전체</option>
+          <!-- JS로 채움 -->
+        </select>
+      </div>
+      <div class="fg">
+        <label>Query Type</label>
+        <select id="qe-qtype">
+          <option value="">전체</option>
+          <option value="QUERY">QUERY</option>
+          <option value="DDL">DDL</option>
+          <option value="SET">SET</option>
+          <option value="N/A">N/A</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn btn-primary" id="qe-search-btn">검색</button>
+        <button class="btn btn-secondary" id="qe-reset-btn">초기화</button>
+        <button class="btn btn-secondary" id="qe-stop-btn" style="display:none;background:#fde8e8;color:#c0392b">중지</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="qe-progress">
+    <span id="qe-progress-text">검색 중…</span>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="qe-progress-bar" style="width:0%"></div></div>
+  </div>
+
+  <div id="qe-summary" style="display:none">
+    <span id="qe-summary-text"></span>
+  </div>
+
+  <!-- 상태 탭 -->
+  <div class="tab-bar" id="qe-state-tabs">
+    <div class="stab active" data-state="" onclick="qeSelectState(this)">전체 <span class="cnt" id="cnt-all">0</span></div>
+    <div class="stab" data-state="FINISHED" onclick="qeSelectState(this)">FINISHED <span class="cnt" id="cnt-finished">0</span></div>
+    <div class="stab" data-state="RUNNING" onclick="qeSelectState(this)">RUNNING <span class="cnt" id="cnt-running">0</span></div>
+    <div class="stab" data-state="EXCEPTION" onclick="qeSelectState(this)">EXCEPTION <span class="cnt" id="cnt-exception">0</span></div>
+    <div style="flex:1"></div>
+    <div id="qe-tab-summary" style="display:flex;align-items:center;font-size:11px;color:#b0b8cc;padding:0 8px"></div>
+  </div>
+
+  <!-- 클러스터 탭 -->
+  <div class="tab-bar" id="qe-cluster-tabs">
+    <div class="stab active" data-cluster="" onclick="qeSelectCluster(this)">전체 <span class="cnt">0</span></div>
+    <!-- JS로 채움 -->
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="qe-table">
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th class="sortable" data-col="_cluster" onclick="qeSort(this)">클러스터 ↕</th>
+          <th>Query ID</th>
+          <th class="sortable" data-col="user" onclick="qeSort(this)">사용자 ↕</th>
+          <th>Connected User</th>
+          <th class="sortable" data-col="queryState" onclick="qeSort(this)">상태 ↕</th>
+          <th>Statement</th>
+          <th>실행시간</th>
+          <th>Rows</th>
+          <th class="sortable" data-col="startTime" onclick="qeSort(this)">시작시간 ↕</th>
+          <th class="sortable" data-col="endTime" onclick="qeSort(this)">종료시간 ↕</th>
+          <th>queryStatus</th>
+        </tr>
+      </thead>
+      <tbody id="qe-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════ QUERY MONITORING ════════ -->
+<div class="tab-content" id="content-qm">
+  <div id="qm-wrap">
+
+    <!-- 사이드바 -->
+    <div id="qm-sidebar">
+      <div class="sb-group-title">🔧 운영</div>
+      <div id="sb-ops"><!-- JS로 채움 --></div>
+      <div class="sb-group-title" style="margin-top:8px">👤 유저</div>
+      <div id="sb-user"><!-- JS로 채움 --></div>
+    </div>
+
+    <!-- 메인 패널 -->
+    <div id="qm-main" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+      <!-- Info Bar -->
+      <div id="qm-infobar">
+        <div id="qm-coord-name" style="color:#b0b8cc;font-style:italic">코디네이터를 선택하세요</div>
+        <div class="ib-divider"></div>
+        <div class="ib-stat">
+          <div class="val" id="ib-inflight" style="color:#4361ee">—</div>
+          <div class="lbl">In Flight</div>
+        </div>
+        <div class="ib-stat">
+          <div class="val" id="ib-waiting" style="color:#e67e22">—</div>
+          <div class="lbl">Waiting to Close</div>
+        </div>
+        <div class="ib-stat">
+          <div class="val" id="ib-completed" style="color:#27ae60">—</div>
+          <div class="lbl">Last Completed</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn-refresh" id="qm-refresh-btn" onclick="qmRefresh()" disabled>↻ 새로고침</button>
+      </div>
+
+      <!-- 3섹션 -->
+      <div id="qm-sections">
+
+        <div class="qm-section" id="sec-inflight">
+          <div class="qm-sec-hdr" onclick="toggleSec(this)">
+            <span class="qm-sec-title">① Queries In Flight</span>
+            <span class="sec-cnt" id="sec-cnt-inflight">0</span>
+            <span class="chev">▾</span>
+          </div>
+          <div class="qm-sec-body">
+            <div class="qm-tbl-wrap">
+              <table class="qm-tbl">
+                <thead><tr>
+                  <th>Query ID</th><th>Cancel</th><th>User</th><th>DB</th><th>Type</th>
+                  <th>State</th><th>Progress</th><th>Start</th><th>Duration</th>
+                  <th>Rows</th><th>Mem</th><th>Last Event</th><th>Pool</th><th>Statement</th>
+                </tr></thead>
+                <tbody id="tbody-inflight"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="qm-section" id="sec-waiting">
+          <div class="qm-sec-hdr" onclick="toggleSec(this)">
+            <span class="qm-sec-title">② Waiting to be Closed</span>
+            <span class="sec-cnt" id="sec-cnt-waiting">0</span>
+            <span class="chev">▾</span>
+          </div>
+          <div class="qm-sec-body">
+            <div class="qm-tbl-wrap">
+              <table class="qm-tbl">
+                <thead><tr>
+                  <th>Query ID</th><th>Cancel</th><th>User</th><th>DB</th><th>Type</th>
+                  <th>State</th><th>Waiting Time</th><th>Start</th><th>End</th>
+                  <th>Duration</th><th>Rows</th><th>Mem</th><th>Statement</th>
+                </tr></thead>
+                <tbody id="tbody-waiting"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="qm-section" id="sec-completed">
+          <div class="qm-sec-hdr" onclick="toggleSec(this)">
+            <span class="qm-sec-title">③ Last Completed Queries</span>
+            <span class="sec-cnt" id="sec-cnt-completed">0</span>
+            <span class="chev">▾</span>
+          </div>
+          <div class="qm-sec-body">
+            <div class="qm-tbl-wrap">
+              <table class="qm-tbl">
+                <thead><tr>
+                  <th>Query ID</th><th>User</th><th>DB</th><th>Type</th><th>State</th>
+                  <th>Start</th><th>End</th><th>Duration</th><th>Queued</th>
+                  <th>Rows</th><th>Bytes Read</th><th>Mem Peak</th><th>Pool</th><th>Statement</th>
+                </tr></thead>
+                <tbody id="tbody-completed"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /qm-sections -->
+    </div>
+  </div>
+</div>
+
+<!-- ── 쿼리 상세 모달 ── -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <div id="modal-header">
+      <span style="font-size:12px;color:#8892a4">Query ID</span>
+      <span id="modal-query-id"></span>
+      <button id="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-tabs">
+      <div class="modal-tab active" data-pane="summary" onclick="switchModalTab(this)">Summary</div>
+      <div class="modal-tab" data-pane="statement" onclick="switchModalTab(this)">Statement</div>
+      <div class="modal-tab" data-pane="plan" onclick="switchModalTab(this)">Plan</div>
+      <div class="modal-tab" data-pane="profile" onclick="switchModalTab(this)">Profile</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-pane active" id="pane-summary">
+        <div class="meta-grid" id="modal-meta"></div>
+      </div>
+      <div class="modal-pane" id="pane-statement">
+        <pre class="profile-pre" id="modal-stmt"></pre>
+      </div>
+      <div class="modal-pane" id="pane-plan">
+        <pre class="profile-pre" id="modal-plan">불러오는 중…</pre>
+      </div>
+      <div class="modal-pane" id="pane-profile">
+        <div class="profile-actions">
+          <button class="btn-dl" id="dl-text">⬇ Text</button>
+          <button class="btn-dl" id="dl-json">⬇ JSON</button>
+          <button class="btn-dl" id="dl-thrift">⬇ Thrift</button>
+        </div>
+        <pre class="profile-pre" id="modal-profile">불러오는 중…</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 토스트 ── -->
+<div id="toast"></div>
+
+<script src="/static/main.js"></script>
+</body>
+</html>

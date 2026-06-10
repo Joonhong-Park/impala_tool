@@ -1,0 +1,180 @@
+from __future__ import annotations
+
+import json
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+import httpx
+from fastapi import APIRouter, Query
+from fastapi.responses import HTMLResponse, StreamingResponse
+
+from services import cm_client
+from services.cm_client import build_filter, resolve_time_range
+from services.config_loader import ClusterConfig, Config
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/explorer", tags=["explorer"])
+
+_config: Optional[Config] = None
+
+
+def init(config: Config) -> None:
+    global _config
+    _config = config
+
+
+@dataclass
+class _QueryRequest:
+    """클라이언트에서 받은 검색 파라미터를 정규화한 구조체."""
+    params: dict
+    cluster_ids: Optional[list[str]]
+    query_type: Optional[str]
+    query_state: Optional[str]
+    conditions: list[dict]
+
+
+def _parse_conditions(raw: Optional[str]) -> list[dict]:
+    """조건 JSON 문자열을 파싱한다. 파싱 실패 시 빈 리스트."""
+    if not raw:
+        return []
+    try:
+        return json.loads(raw)
+    except (ValueError, TypeError):
+        return []
+
+
+def _build_request(
+    conditions: Optional[str],
+    query_type: Optional[str],
+    query_state: Optional[str],
+    hours: Optional[int],
+    from_time: Optional[str],
+    to_time: Optional[str],
+    clusters: Optional[str],
+) -> _QueryRequest:
+    cond_list = _parse_conditions(conditions)
+    from_iso, to_iso = resolve_time_range(hours, from_time, to_time)
+
+    params = {"from": from_iso, "to": to_iso}
+
+    cluster_ids = [c.strip() for c in clusters.split(",")] if clusters else None
+
+    return _QueryRequest(
+        params=params,
+        cluster_ids=cluster_ids,
+        query_type=query_type,
+        query_state=query_state,
+        conditions=cond_list,
+    )
+
+
+def _find_cluster(cluster_id: str) -> Optional[ClusterConfig]:
+    return next((c for c in _config.clusters if c.id == cluster_id), None)
+
+
+@router.get("/clusters")
+async def list_clusters():
+    return {"clusters": [c.id for c in _config.clusters]}
+
+
+@router.get("/queries")
+async def get_queries(
+    conditions: Optional[str] = Query(None),
+    query_type: Optional[str] = Query(None),
+    query_state: Optional[str] = Query(None),
+    hours: Optional[int] = Query(None),
+    from_time: Optional[str] = Query(None),
+    to_time: Optional[str] = Query(None),
+    clusters: Optional[str] = Query(None),
+):
+    req = _build_request(conditions, query_type, query_state, hours, from_time, to_time, clusters)
+    result = await cm_client.fetch_all_clusters(
+        params=req.params,
+        cluster_ids=req.cluster_ids,
+        query_type=req.query_type,
+        query_state=req.query_state,
+        conditions=req.conditions,
+    )
+    result["filter_applied"] = build_filter(req.query_type, req.query_state, req.conditions)
+    return result
+
+
+@router.get("/queries/stream")
+async def stream_queries(
+    conditions: Optional[str] = Query(None),
+    query_type: Optional[str] = Query(None),
+    query_state: Optional[str] = Query(None),
+    hours: Optional[int] = Query(None),
+    from_time: Optional[str] = Query(None),
+    to_time: Optional[str] = Query(None),
+    clusters: Optional[str] = Query(None),
+):
+    req = _build_request(conditions, query_type, query_state, hours, from_time, to_time, clusters)
+    filter_applied = build_filter(req.query_type, req.query_state, req.conditions)
+
+    async def generate():
+        async for event in cm_client.stream_all_clusters(
+            params=req.params,
+            cluster_ids=req.cluster_ids,
+            query_type=req.query_type,
+            query_state=req.query_state,
+            conditions=req.conditions,
+        ):
+            if event["type"] == "done":
+                event["filter_applied"] = filter_applied
+            yield f"data: {json.dumps(event)}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+def _profile_html(body: str, *, status: int = 200) -> HTMLResponse:
+    return HTMLResponse(
+        f"<html><body style='font-family:monospace;padding:40px'>{body}</body></html>",
+        status_code=status,
+    )
+
+
+@router.get("/profile/{cluster_id}/{query_id}", response_class=HTMLResponse)
+async def get_profile(cluster_id: str, query_id: str):
+    cluster = _find_cluster(cluster_id)
+    if not cluster:
+        return HTMLResponse("<pre>cluster not found</pre>", status_code=404)
+
+    url = (
+        f"https://{cluster.cm.host}:{cluster.cm.port}"
+        f"/api/{cluster.cm.api_version}"
+        f"/clusters/{_config.cm.cluster_name}/services/impala"
+        f"/impalaQueries/{query_id}/queryDetails"
+    )
+
+    try:
+        async with httpx.AsyncClient(verify=_config.app.ca_bundle, timeout=_config.cm.request_timeout) as client:
+            resp = await client.get(url, auth=(_config.cm.username, _config.cm.password))
+    except Exception as e:
+        return _profile_html(f"<h2>Error</h2><pre>{e}</pre>", status=500)
+
+    if resp.status_code == 404:
+        return _profile_html(
+            "<h2>Profile Not Found</h2>"
+            "<p>보관 기간이 지났거나 아직 생성되지 않은 프로파일입니다.</p>",
+            status=404,
+        )
+
+    try:
+        resp.raise_for_status()
+        profile_text = resp.json().get("profile", resp.text)
+    except Exception as e:
+        return _profile_html(f"<h2>Error</h2><pre>{e}</pre>", status=500)
+
+    safe = profile_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return HTMLResponse(
+        f"<html><head><meta charset='UTF-8'><title>Query Profile</title>"
+        f"<style>body{{font-family:monospace;font-size:12px;padding:20px;"
+        f"white-space:pre-wrap;line-height:1.6}}</style></head>"
+        f"<body>{safe}</body></html>"
+    )

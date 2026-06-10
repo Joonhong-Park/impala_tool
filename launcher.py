@@ -34,8 +34,8 @@ NODE_HOST   = "node1"
 NODE_PORT   = 22
 NODE_USER   = "node_user"
 
-LOCAL_PORT  = 9090
-REMOTE_PORT = 9090
+LOCAL_PORT  = 9191
+REMOTE_PORT = 9191
 APP_URL     = f"http://localhost:{LOCAL_PORT}"
 # ─────────────────────────────────────────────────────────────────────────────
 

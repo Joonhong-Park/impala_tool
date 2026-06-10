@@ -93,7 +93,7 @@ impala_tool/
 
 ```yaml
 app:
-  port: 9090
+  port: 9191
   ca_bundle: /etc/pki/tls/certs/ca-bundle.crt
 
 cm:
@@ -211,7 +211,7 @@ clusters:
 ## 9. launcher.py (Windows 배포용)
 
 - **역할**: 사내 Windows PC에서 SSH 2-hop 터널 연결 후 브라우저 자동 오픈
-- **터널 경로**: `PC → 터널 서버 → node1(FastAPI 서버)`, localhost:9090 포워딩
+- **터널 경로**: `PC → 터널 서버 → node1(FastAPI 서버)`, localhost:9191 포워딩
 - **GUI**: tkinter (다크 테마), 비밀번호 저장 (Fernet, 기기 고유 키)
 - **빌드**: `pyinstaller --onefile --noconsole --name ImpalaTool launcher.py`
 - **배포 전 수정 필요**: `TUNNEL_SERVERS`, `NODE_HOST`, `NODE_USER`, `LOCAL_PORT`
@@ -253,7 +253,7 @@ clusters:
 pip install -r requirements.txt
 python main.py
 # 또는
-uvicorn main:app --host 0.0.0.0 --port 9090
+uvicorn main:app --host 0.0.0.0 --port 9191
 ```
 
-접속: `http://localhost:9090`
+접속: `http://localhost:9191`

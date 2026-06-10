@@ -1,5 +1,5 @@
 app:
-  port: 9090
+  port: 9191
   ca_bundle: /etc/pki/tls/certs/ca-bundle.crt
 
 cm:

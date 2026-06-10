@@ -1,0 +1,104 @@
+<div class="filters">
+  <div class="filter-row">
+    <div class="fg">
+      <label>사용자</label>
+      <input type="text" id="qe-user" placeholder="analyst_kim">
+    </div>
+    <div class="fg">
+      <label>검색 조건</label>
+      <div class="cond-area" id="qe-conds">
+        <!-- JS로 조건 블록 추가 -->
+      </div>
+      <button class="btn-add-cond" id="qe-add-cond">+ 추가</button>
+    </div>
+    <div class="fg">
+      <label>빠른 범위</label>
+      <div class="presets" id="qe-presets">
+        <button class="preset-btn active" data-h="1">1h</button>
+        <button class="preset-btn" data-h="3">3h</button>
+        <button class="preset-btn" data-h="6">6h</button>
+        <button class="preset-btn" data-h="12">12h</button>
+        <button class="preset-btn" data-h="24">1d</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label>시작</label>
+      <input type="text" id="qe-from" placeholder="2026-06-09 00:00" style="min-width:172px">
+    </div>
+    <div class="fg">
+      <label>종료</label>
+      <input type="text" id="qe-to" placeholder="2026-06-09 23:59" style="min-width:172px">
+    </div>
+  </div>
+  <div class="filter-row">
+    <div class="fg">
+      <label>클러스터</label>
+      <select id="qe-cluster-select">
+        <option value="">전체</option>
+        <!-- JS로 채움 -->
+      </select>
+    </div>
+    <div class="fg">
+      <label>Query Type</label>
+      <select id="qe-qtype">
+        <option value="">전체</option>
+        <option value="QUERY">QUERY</option>
+        <option value="DDL">DDL</option>
+        <option value="SET">SET</option>
+        <option value="N/A">N/A</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px">
+      <button class="btn btn-primary" id="qe-search-btn">검색</button>
+      <button class="btn btn-secondary" id="qe-reset-btn">초기화</button>
+      <button class="btn btn-secondary" id="qe-stop-btn" style="display:none;background:#fde8e8;color:#c0392b">중지</button>
+    </div>
+  </div>
+</div>
+
+<div id="qe-progress">
+  <span id="qe-progress-text">검색 중…</span>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="qe-progress-bar" style="width:0%"></div></div>
+</div>
+
+<div id="qe-summary" style="display:none">
+  <span id="qe-summary-text"></span>
+</div>
+
+<!-- 상태 탭 -->
+<div class="tab-bar" id="qe-state-tabs">
+  <div class="stab active" data-state="" onclick="qeSelectState(this)">전체 <span class="cnt" id="cnt-all">0</span></div>
+  <div class="stab" data-state="FINISHED" onclick="qeSelectState(this)">FINISHED <span class="cnt" id="cnt-finished">0</span></div>
+  <div class="stab" data-state="RUNNING" onclick="qeSelectState(this)">RUNNING <span class="cnt" id="cnt-running">0</span></div>
+  <div class="stab" data-state="EXCEPTION" onclick="qeSelectState(this)">EXCEPTION <span class="cnt" id="cnt-exception">0</span></div>
+  <div style="flex:1"></div>
+  <div id="qe-tab-summary" style="display:flex;align-items:center;font-size:11px;color:#b0b8cc;padding:0 8px"></div>
+</div>
+
+<!-- 클러스터 탭 -->
+<div class="tab-bar" id="qe-cluster-tabs">
+  <div class="stab active" data-cluster="" onclick="qeSelectCluster(this)">전체 <span class="cnt">0</span></div>
+  <!-- JS로 채움 -->
+</div>
+
+<div class="tbl-wrap">
+  <table id="qe-table">
+    <thead>
+      <tr>
+        <th style="width:28px"></th>
+        <th class="sortable" data-col="_cluster" onclick="qeSort(this)">클러스터 ↕</th>
+        <th>Query ID</th>
+        <th class="sortable" data-col="user" onclick="qeSort(this)">사용자 ↕</th>
+        <th>Connected User</th>
+        <th class="sortable" data-col="queryState" onclick="qeSort(this)">상태 ↕</th>
+        <th>Statement</th>
+        <th>실행시간</th>
+        <th>Rows</th>
+        <th class="sortable" data-col="startTime" onclick="qeSort(this)">시작시간 ↕</th>
+        <th class="sortable" data-col="endTime" onclick="qeSort(this)">종료시간 ↕</th>
+        <th>queryStatus</th>
+      </tr>
+    </thead>
+    <tbody id="qe-tbody"></tbody>
+  </table>
+</div>

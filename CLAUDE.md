@@ -57,9 +57,9 @@ Impala 운영 편의를 위한 **사내 전용 통합 웹 UI**로, 두 가지 �
 | 레이어 | 기술 |
 |--------|------|
 | 백엔드 | Python 3, FastAPI |
-| 프론트엔드 | 단일 `index.html` + vanilla JS (Jinja2 미사용) |
+| 프론트엔드 | Jinja2 템플릿 (base.html + 파셜) + vanilla JS |
 | HTTP 클라이언트 | httpx (비동기) |
-| 설정 관리 | YAML (`config.yaml`) |
+| 설정 관리 | YAML (`config.yaml`, `launcher_config.yaml`) |
 | 실행 환경 | 에어갭 내부망 단독 서버 |
 | 배포 클라이언트 | Windows용 SSH 터널 런처 (`launcher.py`, PyInstaller 빌드) |
 
@@ -69,8 +69,9 @@ Impala 운영 편의를 위한 **사내 전용 통합 웹 UI**로, 두 가지 �
 
 ```
 impala_tool/
-├── config.yaml                  # 클러스터/코디네이터/CM/앱 설정
-├── main.py                      # FastAPI 앱 진입점, 라우터 등록
+├── config.yaml                  # 클러스터/코디네이터/CM/앱/explorer 설정
+├── launcher_config.yaml         # launcher.py 전용 SSH 터널 서버 설정
+├── main.py                      # FastAPI 앱 진입점, Jinja2 템플릿 등록
 ├── launcher.py                  # Windows .exe 런처 (SSH 터널 + tkinter GUI)
 ├── requirements.txt
 ├── .gitignore
@@ -78,13 +79,23 @@ impala_tool/
 │   ├── monitor.py               # /monitor/* — impalad 실시간 조회/Cancel/다운로드
 │   └── explorer.py              # /explorer/* — CM API 이력 검색, SSE 스트리밍
 ├── services/
-│   ├── config_loader.py         # config.yaml 파싱, dataclass 정의
+│   ├── config_loader.py         # config.yaml 파싱, dataclass 정의 (ExplorerConfig 포함)
 │   ├── impala_client.py         # impalad HTTP endpoint 비동기 클라이언트
 │   └── cm_client.py             # CM API 비동기 클라이언트, 청크 스트리밍
 ├── templates/
-│   └── index.html               # 전체 UI (Query Monitoring + Query Explorer 탭)
+│   ├── base.html                # HTML 셸: CSS/JS 링크, 헤더, 탭 구조
+│   ├── _explorer.html           # Query Explorer 탭 콘텐츠
+│   ├── _monitor.html            # Query Monitoring 탭 콘텐츠
+│   └── _modal.html              # 쿼리 상세 모달
 └── static/
-    └── main.js                  # 탭 전환, 사이드바, Cancel, 모달, SSE 처리
+    ├── css/
+    │   ├── base.css             # 공통 스타일 (헤더, 버튼, 배지, 테이블)
+    │   ├── explorer.css         # Query Explorer 전용 스타일
+    │   └── monitor.css          # Query Monitoring + 모달 + 토스트 스타일
+    └── js/
+        ├── common.js            # DOM 헬퍼, 탭 전환, 토스트, XSS 이스케이프
+        ├── explorer.js          # Query Explorer 로직 (검색, SSE, 렌더)
+        └── monitor.js           # Query Monitoring + 모달 로직
 ```
 
 ---
@@ -190,7 +201,7 @@ clusters:
 
 ```
 조건 있음 (keyword/user/query_type/query_state)
-    → _stream_chunked: 시간 구간을 CURSOR_CHUNK_HOURS(3분) 단위로 분할
+    → _stream_chunked: 시간 구간을 config.explorer.chunk_hours(기본 3분) 단위로 분할
       각 청크마다 전체 클러스터 병렬 요청 → Python 클라이언트 사이드 필터링
       → SSE progress 이벤트 스트리밍
 
@@ -204,7 +215,7 @@ clusters:
 - CM API에 `filter` 파라미터를 전달하지 않음 — 모든 필터링은 Python 클라이언트에서 수행
 - `filter_applied` 응답 필드는 적용된 필터 조건의 표시용 문자열 (CM 전달 아님)
 - `seen_ids` set으로 청크 간 중복 제거 (`queryId` 없는 행은 dedup 생략)
-- `CURSOR_CHUNK_HOURS = 3/60` (3분): 480청크/24h — 조건 없을 때는 single-shot 사용
+- `config.explorer.chunk_hours` (기본 3/60 = 3분): 480청크/24h — 조건 없을 때는 single-shot 사용
 
 ---
 
@@ -214,7 +225,8 @@ clusters:
 - **터널 경로**: `PC → 터널 서버 → node1(FastAPI 서버)`, localhost:9191 포워딩
 - **GUI**: tkinter (다크 테마), 비밀번호 저장 (Fernet, 기기 고유 키)
 - **빌드**: `pyinstaller --onefile --noconsole --name ImpalaTool launcher.py`
-- **배포 전 수정 필요**: `TUNNEL_SERVERS`, `NODE_HOST`, `NODE_USER`, `LOCAL_PORT`
+- **설정 파일**: `launcher_config.yaml` (빌드된 .exe와 같은 디렉터리에 위치)
+- **배포 전 수정 필요**: `launcher_config.yaml`의 `tunnel_servers`, `node`, `app` 섹션
 
 ---
 
@@ -236,7 +248,7 @@ clusters:
 
 | 항목 | 내용 |
 |------|------|
-| 프론트엔드 | 단일 `index.html` 직접 서빙 (Jinja2 템플릿 미사용) |
+| 프론트엔드 | Jinja2 템플릿 (`base.html` + `{% include %}` 파셜) + 분리된 CSS/JS |
 | 데이터 수집 | `/queries?json` JSON API 파싱 (HTML 스크래핑 아님) |
 | Cancel | POST `/monitor/cancel/...` → 성공 시 행 제거 + toast (confirm 없음) |
 | `waiting_to_be_closed` Cancel | 효과 없을 수 있음 — 별도 UI 경고 불필요 (확정) |

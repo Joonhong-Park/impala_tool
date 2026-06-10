@@ -13,10 +13,6 @@ from services.config_loader import ClusterConfig, CmGlobalConfig, Config
 
 logger = logging.getLogger(__name__)
 
-CURSOR_CHUNK_HOURS = 3 / 60
-# 청크당 최대 쿼리 수
-CURSOR_CHUNK_LIMIT = 1000
-
 _config: Optional[Config] = None
 _verify: Union[str, bool] = False
 
@@ -204,7 +200,7 @@ async def _stream_single_shot(
     """조건이 없을 때: 단일 요청으로 클러스터별 결과를 모은다."""
     yield {"type": "progress", "chunk": 0, "total": 0, "collected": 0, "new_queries": []}
 
-    results = await _gather_clusters(client, targets, cm, {**params, "limit": CURSOR_CHUNK_LIMIT})
+    results = await _gather_clusters(client, targets, cm, {**params, "limit": _config.explorer.chunk_limit})
 
     all_queries: list[dict] = []
     cluster_results: list[dict] = []
@@ -240,7 +236,7 @@ async def _stream_chunked(
     from_dt = _parse_dt(params["from"]) if params.get("from") else now - timedelta(hours=24)
     to_dt   = _parse_dt(params["to"])   if params.get("to")   else now
 
-    total_chunks = math.ceil((to_dt - from_dt).total_seconds() / 3600 / CURSOR_CHUNK_HOURS)
+    total_chunks = math.ceil((to_dt - from_dt).total_seconds() / 3600 / _config.explorer.chunk_hours)
 
     collected: list[dict] = []
     seen_ids: set[str] = set()
@@ -250,12 +246,12 @@ async def _stream_chunked(
     cursor_to = to_dt
     chunk_no = 0
     while cursor_to > from_dt:
-        chunk_from = max(from_dt, cursor_to - timedelta(hours=CURSOR_CHUNK_HOURS))
+        chunk_from = max(from_dt, cursor_to - timedelta(hours=_config.explorer.chunk_hours))
         chunk_no += 1
         prev_count = len(collected)
 
         chunk_params = {
-            "limit": CURSOR_CHUNK_LIMIT,
+            "limit": _config.explorer.chunk_limit,
             "from": chunk_from.isoformat(),
             "to": cursor_to.isoformat(),
         }

@@ -1,0 +1,99 @@
+<div id="qm-wrap">
+
+  <!-- 사이드바 -->
+  <div id="qm-sidebar">
+    <div class="sb-group-title">🔧 운영</div>
+    <div id="sb-ops"><!-- JS로 채움 --></div>
+    <div class="sb-group-title" style="margin-top:8px">👤 유저</div>
+    <div id="sb-user"><!-- JS로 채움 --></div>
+  </div>
+
+  <!-- 메인 패널 -->
+  <div id="qm-main" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+    <!-- Info Bar -->
+    <div id="qm-infobar">
+      <div id="qm-coord-name" style="color:#b0b8cc;font-style:italic">코디네이터를 선택하세요</div>
+      <div class="ib-divider"></div>
+      <div class="ib-stat">
+        <div class="val" id="ib-inflight" style="color:#4361ee">—</div>
+        <div class="lbl">In Flight</div>
+      </div>
+      <div class="ib-stat">
+        <div class="val" id="ib-waiting" style="color:#e67e22">—</div>
+        <div class="lbl">Waiting to Close</div>
+      </div>
+      <div class="ib-stat">
+        <div class="val" id="ib-completed" style="color:#27ae60">—</div>
+        <div class="lbl">Last Completed</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn-refresh" id="qm-refresh-btn" onclick="qmRefresh()" disabled>↻ 새로고침</button>
+    </div>
+
+    <!-- 3섹션 -->
+    <div id="qm-sections">
+
+      <div class="qm-section" id="sec-inflight">
+        <div class="qm-sec-hdr" onclick="toggleSec(this)">
+          <span class="qm-sec-title">① Queries In Flight</span>
+          <span class="sec-cnt" id="sec-cnt-inflight">0</span>
+          <span class="chev">▾</span>
+        </div>
+        <div class="qm-sec-body">
+          <div class="qm-tbl-wrap">
+            <table class="qm-tbl">
+              <thead><tr>
+                <th>Query ID</th><th>Cancel</th><th>User</th><th>DB</th><th>Type</th>
+                <th>State</th><th>Progress</th><th>Start</th><th>Duration</th>
+                <th>Rows</th><th>Mem</th><th>Last Event</th><th>Pool</th><th>Statement</th>
+              </tr></thead>
+              <tbody id="tbody-inflight"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="qm-section" id="sec-waiting">
+        <div class="qm-sec-hdr" onclick="toggleSec(this)">
+          <span class="qm-sec-title">② Waiting to be Closed</span>
+          <span class="sec-cnt" id="sec-cnt-waiting">0</span>
+          <span class="chev">▾</span>
+        </div>
+        <div class="qm-sec-body">
+          <div class="qm-tbl-wrap">
+            <table class="qm-tbl">
+              <thead><tr>
+                <th>Query ID</th><th>Cancel</th><th>User</th><th>DB</th><th>Type</th>
+                <th>State</th><th>Waiting Time</th><th>Start</th><th>End</th>
+                <th>Duration</th><th>Rows</th><th>Mem</th><th>Statement</th>
+              </tr></thead>
+              <tbody id="tbody-waiting"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="qm-section" id="sec-completed">
+        <div class="qm-sec-hdr" onclick="toggleSec(this)">
+          <span class="qm-sec-title">③ Last Completed Queries</span>
+          <span class="sec-cnt" id="sec-cnt-completed">0</span>
+          <span class="chev">▾</span>
+        </div>
+        <div class="qm-sec-body">
+          <div class="qm-tbl-wrap">
+            <table class="qm-tbl">
+              <thead><tr>
+                <th>Query ID</th><th>User</th><th>DB</th><th>Type</th><th>State</th>
+                <th>Start</th><th>End</th><th>Duration</th><th>Queued</th>
+                <th>Rows</th><th>Bytes Read</th><th>Mem Peak</th><th>Pool</th><th>Statement</th>
+              </tr></thead>
+              <tbody id="tbody-completed"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /qm-sections -->
+  </div>
+</div>

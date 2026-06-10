@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from routers import explorer, monitor
 from services import cm_client
@@ -18,10 +19,10 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 
-BASE_DIR     = Path(__file__).parent
-CONFIG_PATH  = BASE_DIR / "config.yaml"
-TEMPLATE     = BASE_DIR / "templates" / "index.html"
-STATIC_DIR   = BASE_DIR / "static"
+BASE_DIR        = Path(__file__).parent
+CONFIG_PATH     = BASE_DIR / "config.yaml"
+STATIC_DIR      = BASE_DIR / "static"
+TEMPLATES_DIR   = BASE_DIR / "templates"
 
 config = load_config(CONFIG_PATH)
 
@@ -36,10 +37,12 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.include_router(monitor.router)
 app.include_router(explorer.router)
 
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
 
 @app.get("/", response_class=HTMLResponse)
-async def index() -> str:
-    return TEMPLATE.read_text(encoding="utf-8")
+async def index(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse("base.html", {"request": request})
 
 
 @app.get("/health")

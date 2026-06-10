@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Impala Tool</title>
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/explorer.css">
+<link rel="stylesheet" href="/static/css/monitor.css">
+</head>
+<body>
+
+<!-- ── 앱 헤더 ── -->
+<div id="app-header">
+  <div class="brand">
+    <div class="logo">I</div>
+    <span>Impala Tool</span>
+  </div>
+  <div class="app-tab active" id="tab-qe" onclick="switchTab('qe')">🔍 Query Explorer</div>
+  <div class="app-tab" id="tab-qm" onclick="switchTab('qm')">📡 Query Monitoring</div>
+</div>
+
+<!-- ════════ QUERY EXPLORER ════════ -->
+<div class="tab-content active" id="content-qe">
+  {% include "_explorer.html" %}
+</div>
+
+<!-- ════════ QUERY MONITORING ════════ -->
+<div class="tab-content" id="content-qm">
+  {% include "_monitor.html" %}
+</div>
+
+{% include "_modal.html" %}
+
+<!-- ── 토스트 ── -->
+<div id="toast"></div>
+
+<script src="/static/js/common.js"></script>
+<script src="/static/js/explorer.js"></script>
+<script src="/static/js/monitor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  qmLoadSidebar();
+  qeInit();
+});
+</script>
+</body>
+</html>

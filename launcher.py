@@ -14,6 +14,7 @@ import json
 import os
 import select
 import socket
+import sys
 import threading
 import webbrowser
 import time
@@ -22,20 +23,37 @@ from tkinter import messagebox
 from pathlib import Path
 
 import paramiko
+import yaml
 from cryptography.fernet import Fernet, InvalidToken
 
-# ── 서버 설정 (실제 값으로 변경 후 빌드) ─────────────────────────────────────
+# ── 설정 파일 로드 ────────────────────────────────────────────────────────────
+def _load_launcher_config() -> dict:
+    search_paths = [
+        Path(sys.executable).parent / "launcher_config.yaml",
+        Path(__file__).parent / "launcher_config.yaml",
+        Path.cwd() / "launcher_config.yaml",
+    ]
+    for p in search_paths:
+        if p.exists():
+            return yaml.safe_load(p.read_text(encoding="utf-8"))
+    raise FileNotFoundError(
+        "launcher_config.yaml을 찾을 수 없습니다.\n"
+        + "\n".join(str(p) for p in search_paths)
+    )
+
+_cfg = _load_launcher_config()
+
 TUNNEL_SERVERS = [
-    {"label": "터널 서버 1", "host": "tunnel_server1", "port": 22, "user": "tunnel_user1"},
-    {"label": "터널 서버 2", "host": "tunnel_server2", "port": 22, "user": "tunnel_user2"},
+    {"label": s["label"], "host": s["host"], "port": s["port"], "user": s["user"]}
+    for s in _cfg["tunnel_servers"]
 ]
 
-NODE_HOST   = "node1"
-NODE_PORT   = 22
-NODE_USER   = "node_user"
+NODE_HOST   = _cfg["node"]["host"]
+NODE_PORT   = _cfg["node"]["port"]
+NODE_USER   = _cfg["node"]["user"]
 
-LOCAL_PORT  = 9191
-REMOTE_PORT = 9191
+LOCAL_PORT  = _cfg["app"]["local_port"]
+REMOTE_PORT = _cfg["app"]["remote_port"]
 APP_URL     = f"http://localhost:{LOCAL_PORT}"
 # ─────────────────────────────────────────────────────────────────────────────
 

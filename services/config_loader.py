@@ -47,9 +47,16 @@ class CmGlobalConfig:
 
 
 @dataclass
+class ExplorerConfig:
+    chunk_hours: float
+    chunk_limit: int
+
+
+@dataclass
 class Config:
     app: AppConfig
     cm: CmGlobalConfig
+    explorer: ExplorerConfig
     clusters: list[ClusterConfig]
 
     def find_coordinator(self, host: str) -> Optional[CoordinatorConfig]:
@@ -65,9 +72,14 @@ class Config:
 
 def load_config(path: str | Path) -> Config:
     data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    explorer_raw = data.get("explorer", {})
     return Config(
         app=AppConfig(**data["app"]),
         cm=CmGlobalConfig(**data["cm"]),
+        explorer=ExplorerConfig(
+            chunk_hours=explorer_raw.get("chunk_hours", 3 / 60),
+            chunk_limit=explorer_raw.get("chunk_limit", 1000),
+        ),
         clusters=[_parse_cluster(cl) for cl in data["clusters"]],
     )
 

@@ -93,7 +93,7 @@ impala_tool/
     │   ├── explorer.css         # Query Explorer 전용 스타일
     │   └── monitor.css          # Query Monitoring + 모달 + 토스트 스타일
     └── js/
-        ├── common.js            # DOM 헬퍼, 탭 전환, 토스트, XSS 이스케이프
+        ├── common.js            # DOM 헬퍼, 탭 전환, 토스트, XSS 이스케이프, 클러스터 색상 공유 변수
         ├── explorer.js          # Query Explorer 로직 (검색, SSE, 렌더)
         └── monitor.js           # Query Monitoring + 모달 로직
 ```
@@ -112,6 +112,10 @@ cm:
   password: changeme
   cluster_name: CDP-Base        # CM에서의 클러스터 서비스 이름
   request_timeout: 120
+
+explorer:
+  chunk_hours: 0.05             # 청크 단위 시간 (기본 3분 = 3/60)
+  chunk_limit: 1000             # 청크당 최대 쿼리 수
 
 clusters:
   - id: cluster1                # 문자열 ID (JS/Python 모두 str 기준)
@@ -161,7 +165,7 @@ clusters:
 | `query_type` | str | `QUERY` / `DDL` / `SET` / `N/A` |
 | `query_state` | str | `FINISHED` / `RUNNING` / `EXCEPTION` (콤마 구분 복수 가능) |
 | `hours` | int | 빠른 시간 범위 (from/to 미지정 시 사용) |
-| `from_time` | str | 시작 시각 |
+| `from_time` | str | 시작 시각 (단독 지정 시 hours만큼 이후가 to로 계산) |
 | `to_time` | str | 종료 시각 (단독 지정 시 hours만큼 이전이 from으로 계산) |
 | `clusters` | str | 클러스터 ID (콤마 구분, 미지정 시 전체) |
 
@@ -254,7 +258,7 @@ clusters:
 | `waiting_to_be_closed` Cancel | 효과 없을 수 있음 — 별도 UI 경고 불필요 (확정) |
 | Profile 다운로드 | `StreamingResponse` + `safe_stream()` 래퍼로 제너레이터 예외 처리 |
 | 새로고침 | 수동 전용 (자동 폴링 없음) |
-| 클러스터 색상 | `config.yaml`의 `color` 필드 → API 응답 → JS `_CLUSTER_COLOR` Map (하드코딩 없음) |
+| 클러스터 색상 | `config.yaml`의 `color` 필드 → API 응답 → `common.js`의 `_CLUSTER_COLOR` Map (QM·QE 공유, 하드코딩 없음) |
 | query_state 필터 | Explorer: 서버(Python)와 클라이언트(JS) 양쪽에서 적용 |
 
 ---

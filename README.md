@@ -29,7 +29,9 @@ pip install -r requirements.txt
 
 ## 설정
 
-`config.yaml`을 실제 환경에 맞게 수정합니다.
+### config.yaml
+
+서버 및 클러스터 정보를 실제 환경에 맞게 수정합니다.
 
 ```yaml
 app:
@@ -41,6 +43,10 @@ cm:
   password: changeme
   cluster_name: CDP-Base        # CM 서비스 이름
   request_timeout: 120
+
+explorer:
+  chunk_hours: 0.05             # 청크 단위 시간 (기본 3분)
+  chunk_limit: 1000             # 청크당 최대 쿼리 수
 
 clusters:
   - id: cluster1
@@ -56,6 +62,27 @@ clusters:
       user:
         - host: user-coord1.cl1.internal
           port: 25000
+```
+
+### launcher_config.yaml
+
+Windows 런처 배포 시 SSH 터널 서버 정보를 수정합니다.
+
+```yaml
+tunnel_servers:
+  - label: 터널 서버 1
+    host: 실제호스트
+    port: 22
+    user: 계정
+
+node:
+  host: impala-tool-서버호스트
+  port: 22
+  user: 계정
+
+app:
+  local_port: 9191
+  remote_port: 9191
 ```
 
 ---
@@ -158,14 +185,5 @@ pyinstaller --onefile --noconsole --name ImpalaTool launcher.py
 # → dist/ImpalaTool.exe 생성
 ```
 
-배포 전 `launcher.py` 상단의 아래 값을 실제 환경으로 수정해야 합니다.
-
-```python
-TUNNEL_SERVERS = [
-    {"label": "터널 서버 1", "host": "실제호스트", "port": 22, "user": "계정"},
-]
-NODE_HOST  = "impala-tool-서버호스트"
-NODE_USER  = "계정"
-LOCAL_PORT = 9191
-REMOTE_PORT = 9191
-```
+배포 전 `launcher_config.yaml`의 `tunnel_servers`, `node`, `app` 섹션을 실제 환경으로 수정합니다.  
+빌드된 `.exe`와 같은 디렉터리에 `launcher_config.yaml`을 함께 배포합니다.

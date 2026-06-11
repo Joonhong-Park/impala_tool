@@ -75,7 +75,7 @@ def _find_cluster(cluster_id: str) -> Optional[ClusterConfig]:
 
 @router.get("/clusters")
 async def list_clusters():
-    return {"clusters": [c.id for c in _config.clusters]}
+    return {"clusters": [{"id": c.id, "color": c.color} for c in _config.clusters]}
 
 
 

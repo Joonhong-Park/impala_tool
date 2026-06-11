@@ -271,6 +271,7 @@ async function qmCancel(btn, queryId) {
     row.style.transition = 'opacity .4s';
     setTimeout(() => {
       row.remove();
+      _inflightQueries = _inflightQueries.filter(q => q.query_id !== queryId);
       qmRefreshCounts();
       showToast('쿼리가 취소되었습니다.');
     }, 400);

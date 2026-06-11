@@ -149,7 +149,7 @@ clusters:
 
 | Method | Endpoint | 설명 |
 |--------|----------|------|
-| GET | `/explorer/clusters` | 클러스터 ID 목록 |
+| GET | `/explorer/clusters` | 클러스터 ID·색상 목록 (`[{id, color}]`) |
 | GET | `/explorer/queries/stream` | 쿼리 이력 검색 (SSE 스트리밍) |
 | GET | `/explorer/profile/{cluster_id}/{query_id}` | CM API에서 프로파일 조회, HTML 반환 |
 

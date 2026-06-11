@@ -47,7 +47,9 @@ async function qeLoadClusters() {
   const { clusters } = await resp.json();
 
   const sel = $('qe-cluster-select');
-  clusters.forEach(id => {
+  clusters.forEach(({ id, color }) => {
+    _CLUSTER_COLOR.set(id, color);
+
     const opt = document.createElement('option');
     opt.value = id;
     opt.textContent = id;
@@ -55,7 +57,7 @@ async function qeLoadClusters() {
   });
 
   const tabBar = $('qe-cluster-tabs');
-  clusters.forEach(id => {
+  clusters.forEach(({ id }) => {
     const tab = document.createElement('div');
     tab.className = 'stab';
     tab.dataset.cluster = id;

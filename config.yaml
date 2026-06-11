@@ -5,7 +5,6 @@ app:
 cm:
   username: admin
   password: changeme
-  cluster_name: CDP-Base
   request_timeout: 120
 
 explorer:
@@ -19,6 +18,7 @@ clusters:
       host: cm1.internal
       port: 7183
       api_version: v57
+      cluster_name: CDP-Base
     coordinators:
       ops:
         - host: ops-coord1.cl1.internal
@@ -39,6 +39,7 @@ clusters:
       host: cm2.internal
       port: 7183
       api_version: v57
+      cluster_name: CDP-Base
     coordinators:
       ops:
         - host: ops-coord1.cl2.internal
@@ -61,6 +62,7 @@ clusters:
       host: cm3.internal
       port: 7183
       api_version: v54
+      cluster_name: CDP-Base
     coordinators:
       ops:
         - host: ops-coord1.cl3.internal
@@ -89,6 +91,7 @@ clusters:
       host: cm4.internal
       port: 7183
       api_version: v57
+      cluster_name: CDP-Base
     coordinators:
       ops:
         - host: ops-coord1.cl4.internal
@@ -109,6 +112,7 @@ clusters:
       host: cm5.internal
       port: 7183
       api_version: v57
+      cluster_name: CDP-Base
     coordinators:
       ops:
         - host: ops-coord1.cl5.internal

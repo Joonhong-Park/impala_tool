@@ -120,7 +120,7 @@ def _cm_url(cluster: ClusterConfig, cm: CmGlobalConfig) -> str:
     return (
         f"https://{cluster.cm.host}:{cluster.cm.port}"
         f"/api/{cluster.cm.api_version}"
-        f"/clusters/{cm.cluster_name}/services/impala/impalaQueries"
+        f"/clusters/{cluster.cm.cluster_name}/services/impala/impalaQueries"
     )
 
 

@@ -109,7 +109,6 @@ app:
 cm:
   username: admin
   password: changeme
-  cluster_name: CDP-Base        # CM에서의 클러스터 서비스 이름
   request_timeout: 120
 
 explorer:
@@ -123,6 +122,7 @@ clusters:
       host: cm1.internal
       port: 7183
       api_version: v57
+      cluster_name: CDP-Base    # 해당 CM 인스턴스에서의 클러스터 서비스 이름
     coordinators:
       ops:
         - host: ops-coord1.cl1.internal

@@ -93,14 +93,12 @@ function qeAddCondRow() {
 
 /* 검색 폼 → URLSearchParams */
 function qeBuildSearchParams() {
-  const user       = $('qe-user').value.trim();
   const qtype      = $('qe-qtype').value;
   const clusterSel = $('qe-cluster-select').value;
   const fromVal    = $('qe-from').value.trim();
   const toVal      = $('qe-to').value.trim();
 
   const conditions = [];
-  if (user) conditions.push({ field: 'user', value: user });
   document.querySelectorAll('#qe-conds .cond-row').forEach(row => {
     const field = row.querySelector('select').value;
     const value = row.querySelector('input').value.trim();
@@ -118,9 +116,18 @@ function qeBuildSearchParams() {
   return params;
 }
 
+function _resetStateTabs() {
+  _activeState   = '';
+  _activeCluster = '';
+  document.querySelectorAll('#qe-state-tabs .stab, #qe-cluster-tabs .stab').forEach(t => t.classList.remove('active'));
+  document.querySelector('#qe-state-tabs [data-state=""]').classList.add('active');
+  document.querySelector('#qe-cluster-tabs [data-cluster=""]').classList.add('active');
+}
+
 /* 검색 */
 function qeSearch() {
   if (_es) { _es.close(); _es = null; }
+  _resetStateTabs();
   _allRows = [];
   _rows    = [];
   _openRows.clear();
@@ -297,7 +304,6 @@ function qeOpenProfile(clusterId, queryId) {
 
 /* 초기화 */
 function qeReset() {
-  $('qe-user').value = '';
   $('qe-conds').innerHTML = '';
   qeAddCondRow();
   $('qe-cluster-select').value = '';
@@ -305,4 +311,5 @@ function qeReset() {
   $('qe-from').value = '';
   $('qe-to').value   = '';
   qeSetPreset(1);
+  _resetStateTabs();
 }

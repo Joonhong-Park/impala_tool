@@ -18,6 +18,7 @@ class CmConfig:
     host: str
     port: int
     api_version: str
+    cluster_name: str
 
 
 @dataclass
@@ -42,7 +43,6 @@ class AppConfig:
 class CmGlobalConfig:
     username: str
     password: str
-    cluster_name: str
     request_timeout: int
 
 

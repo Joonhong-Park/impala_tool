@@ -4,7 +4,7 @@
 
 | 탭 | 기능 |
 |----|------|
-| **Query Monitoring** | 코디네이터별 실시간 쿼리 조회 / Cancel / 상세(Plan·Profile) |
+| **Query Monitoring** | 코디네이터별 실시간 쿼리 조회 / Cancel / Rows Available 전체 취소 |
 | **Query Explorer** | CM API 기반 시간 범위 쿼리 이력 검색 (사용자·키워드·상태 필터) |
 
 ---

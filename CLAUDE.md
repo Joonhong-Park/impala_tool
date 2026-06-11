@@ -11,7 +11,7 @@ Impala 운영 편의를 위한 **사내 전용 통합 웹 UI**로, 두 가지 �
 
 | 탭 | 기능 | 데이터 소스 |
 |----|------|------------|
-| **Query Monitoring** | 코디네이터별 실시간 쿼리 조회 / Cancel | impalad HTTP API (`/queries?json`) |
+| **Query Monitoring** | 코디네이터별 실시간 쿼리 조회 / Cancel / Rows Available 전체 취소 | impalad HTTP API (`/queries?json`) |
 | **Query Explorer** | 시간 범위 기반 쿼리 이력 검색 (사용자·키워드·상태 필터) | Cloudera Manager API |
 
 ---
@@ -76,7 +76,7 @@ impala_tool/
 ├── requirements.txt
 ├── .gitignore
 ├── routers/
-│   ├── monitor.py               # /monitor/* — impalad 실시간 조회/Cancel/다운로드
+│   ├── monitor.py               # /monitor/* — impalad 실시간 조회/Cancel
 │   └── explorer.py              # /explorer/* — CM API 이력 검색, SSE 스트리밍
 ├── services/
 │   ├── config_loader.py         # config.yaml 파싱, dataclass 정의 (ExplorerConfig 포함)
@@ -85,17 +85,16 @@ impala_tool/
 ├── templates/
 │   ├── base.html                # HTML 셸: CSS/JS 링크, 헤더, 탭 구조
 │   ├── _explorer.html           # Query Explorer 탭 콘텐츠
-│   ├── _monitor.html            # Query Monitoring 탭 콘텐츠
-│   └── _modal.html              # 쿼리 상세 모달
+│   └── _monitor.html            # Query Monitoring 탭 콘텐츠
 └── static/
     ├── css/
     │   ├── base.css             # 공통 스타일 (헤더, 버튼, 배지, 테이블)
     │   ├── explorer.css         # Query Explorer 전용 스타일
-    │   └── monitor.css          # Query Monitoring + 모달 + 토스트 스타일
+    │   └── monitor.css          # Query Monitoring + 토스트 스타일
     └── js/
         ├── common.js            # DOM 헬퍼, 탭 전환, 토스트, XSS 이스케이프, 클러스터 색상 공유 변수
         ├── explorer.js          # Query Explorer 로직 (검색, SSE, 렌더)
-        └── monitor.js           # Query Monitoring + 모달 로직
+        └── monitor.js           # Query Monitoring 로직 (Rows Available 취소 포함)
 ```
 
 ---
@@ -145,15 +144,12 @@ clusters:
 | GET | `/monitor/coordinators` | 전체 클러스터/코디네이터 목록 반환 |
 | GET | `/monitor/queries/{coord_host:path}` | 지정 코디네이터의 쿼리 목록 (impalad `/queries?json` 프록시) |
 | POST | `/monitor/cancel/{coord_host:path}/{query_id}` | 쿼리 Cancel |
-| GET | `/monitor/detail/{coord_host:path}/{query_id}/{detail_type}` | 상세 텍스트 조회 (`summary`/`plan`/`profile`) |
-| GET | `/monitor/download/{coord_host:path}/{query_id}/{fmt}` | Profile 다운로드 (`text`/`json`/`thrift`) |
 
 ### 6-2. `/explorer` — Query Explorer
 
 | Method | Endpoint | 설명 |
 |--------|----------|------|
 | GET | `/explorer/clusters` | 클러스터 ID 목록 |
-| GET | `/explorer/queries` | 쿼리 이력 검색 (동기, JSON 반환) |
 | GET | `/explorer/queries/stream` | 쿼리 이력 검색 (SSE 스트리밍) |
 | GET | `/explorer/profile/{cluster_id}/{query_id}` | CM API에서 프로파일 조회, HTML 반환 |
 
@@ -188,14 +184,12 @@ clusters:
 | 용도 | Endpoint |
 |------|----------|
 | 쿼리 목록 (JSON) | `https://{coord}:25000/queries?json` |
-| 쿼리 Summary | `https://{coord}:25000/query_summary?query_id={qid}` |
-| Plan (텍스트) | `https://{coord}:25000/query_plan_text?query_id={qid}` |
-| Profile (plain text) | `https://{coord}:25000/query_profile_plain_text?query_id={qid}` |
-| Profile (JSON) | `https://{coord}:25000/query_profile?query_id={qid}&json` |
-| Profile (Thrift) | `https://{coord}:25000/query_profile?query_id={qid}&thrift` |
 | Cancel | `https://{coord}:25000/cancel_query?query_id={qid}` |
 
-`/queries?json` 응답 최상위 키: `in_flight_queries`, `waiting_to_be_closed`, `completed_queries`, `query_locations`
+`/queries?json` 응답 최상위 키: `in_flight_queries`, `completed_queries`, `query_locations`
+
+- `in_flight_queries`: 실행 중 + 대기 쿼리 혼합. `waiting: true` 필드로 대기 쿼리 구분
+- 주요 쿼리 필드: `query_id`, `stmt`, `state`, `user`, `last_event`, `progress` (문자열, e.g. `"47891 / 54138 (88.461%)"`), `row_fetched`, `waiting`
 
 ---
 
@@ -255,8 +249,7 @@ clusters:
 | 프론트엔드 | Jinja2 템플릿 (`base.html` + `{% include %}` 파셜) + 분리된 CSS/JS |
 | 데이터 수집 | `/queries?json` JSON API 파싱 (HTML 스크래핑 아님) |
 | Cancel | POST `/monitor/cancel/...` → 성공 시 행 제거 + toast (confirm 없음) |
-| `waiting_to_be_closed` Cancel | 효과 없을 수 있음 — 별도 UI 경고 불필요 (확정) |
-| Profile 다운로드 | `StreamingResponse` + `safe_stream()` 래퍼로 제너레이터 예외 처리 |
+| Rows Available 취소 | Infobar의 일괄 취소 버튼 → `progress=100%, last_event='Rows available', row_fetched=0` 쿼리 대상, confirm 후 `Promise.allSettled` 병렬 취소 |
 | 새로고침 | 수동 전용 (자동 폴링 없음) |
 | 클러스터 색상 | `config.yaml`의 `color` 필드 → API 응답 → `common.js`의 `_CLUSTER_COLOR` Map (QM·QE 공유, 하드코딩 없음) |
 | query_state 필터 | Explorer: 서버(Python)와 클라이언트(JS) 양쪽에서 적용 |

@@ -7,7 +7,7 @@ from typing import Optional
 
 import httpx
 from fastapi import APIRouter, Query
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 
 from services import cm_client
 from services.cm_client import build_filter, resolve_time_range
@@ -111,18 +111,11 @@ async def stream_queries(
     )
 
 
-def _profile_html(body: str, *, status: int = 200) -> HTMLResponse:
-    return HTMLResponse(
-        f"<html><body style='font-family:monospace;padding:40px'>{body}</body></html>",
-        status_code=status,
-    )
-
-
-@router.get("/profile/{cluster_id}/{query_id}", response_class=HTMLResponse)
+@router.get("/profile/{cluster_id}/{query_id}")
 async def get_profile(cluster_id: str, query_id: str):
     cluster = _find_cluster(cluster_id)
     if not cluster:
-        return HTMLResponse("<pre>cluster not found</pre>", status_code=404)
+        return JSONResponse({"error": "cluster not found"}, status_code=404)
 
     url = (
         f"https://{cluster.cm.host}:{cluster.cm.port}"
@@ -135,25 +128,19 @@ async def get_profile(cluster_id: str, query_id: str):
         async with httpx.AsyncClient(verify=_config.app.ca_bundle, timeout=_config.cm.request_timeout) as client:
             resp = await client.get(url, auth=(_config.cm.username, _config.cm.password))
     except Exception as e:
-        return _profile_html(f"<h2>Error</h2><pre>{e}</pre>", status=500)
+        return JSONResponse({"error": str(e)}, status_code=500)
 
     if resp.status_code == 404:
-        return _profile_html(
-            "<h2>Profile Not Found</h2>"
-            "<p>보관 기간이 지났거나 아직 생성되지 않은 프로파일입니다.</p>",
-            status=404,
-        )
+        return JSONResponse({"error": "프로파일을 찾을 수 없습니다. 보관 기간이 지났거나 아직 생성되지 않은 프로파일입니다."}, status_code=404)
 
     try:
         resp.raise_for_status()
         profile_text = resp.json().get("profile", resp.text)
     except Exception as e:
-        return _profile_html(f"<h2>Error</h2><pre>{e}</pre>", status=500)
+        return JSONResponse({"error": str(e)}, status_code=500)
 
-    safe = profile_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return HTMLResponse(
-        f"<html><head><meta charset='UTF-8'><title>Query Profile</title>"
-        f"<style>body{{font-family:monospace;font-size:12px;padding:20px;"
-        f"white-space:pre-wrap;line-height:1.6}}</style></head>"
-        f"<body>{safe}</body></html>"
+    return Response(
+        content=profile_text,
+        media_type="text/plain; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{query_id}_profile.txt"'},
     )

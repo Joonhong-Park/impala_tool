@@ -243,7 +243,7 @@ function qeRenderTable() {
     tr.innerHTML = `
       <td class="expand-btn" onclick="qeToggleRow('${esc(q.queryId)}')">${expanded ? '▼' : '▶'}</td>
       <td><span style="background:${clBadgeBg};color:${clBadgeColor};padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">${esc(q._cluster)}</span></td>
-      <td class="mono" onclick="qeOpenProfile('${esc(q._cluster)}','${esc(q.queryId)}')">${esc(q.queryId)}</td>
+      <td><span class="mono">${esc(q.queryId)}</span><button class="btn-dl-profile" onclick="qeDownloadProfile('${esc(q._cluster)}','${esc(q.queryId)}')">↓</button></td>
       <td style="font-weight:500">${esc(q.user || '')}</td>
       <td style="color:#8892a4">${esc((q.attributes && q.attributes.connected_user) || '')}</td>
       <td><span class="badge ${stateCls}">${esc(q.queryState || '')}</span></td>
@@ -299,9 +299,25 @@ function qeSelectCluster(el) {
   qeApplyFilters();
 }
 
-/* 프로파일 (새 탭) */
-function qeOpenProfile(clusterId, queryId) {
-  window.open(`/explorer/profile/${encodeURIComponent(clusterId)}/${encodeURIComponent(queryId)}`, '_blank');
+/* 프로파일 다운로드 */
+async function qeDownloadProfile(clusterId, queryId) {
+  const url = `/explorer/profile/${encodeURIComponent(clusterId)}/${encodeURIComponent(queryId)}`;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      const { error } = await resp.json().catch(() => ({ error: `HTTP ${resp.status}` }));
+      showToast(error, true);
+      return;
+    }
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${queryId}_profile.txt`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (e) {
+    showToast(`다운로드 실패: ${e.message}`, true);
+  }
 }
 
 /* 초기화 */

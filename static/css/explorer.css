@@ -50,6 +50,12 @@
   font-size: 11px; color: #8892a4; display: flex; align-items: center; gap: 16px;
 }
 
+.btn-dl-profile {
+  background: none; border: 1.5px solid #e2e8f4; color: #8892a4;
+  cursor: pointer; font-size: 11px; padding: 1px 6px; border-radius: 4px;
+  margin-left: 6px; vertical-align: middle; transition: all .15s;
+}
+.btn-dl-profile:hover { border-color: #4361ee; color: #4361ee; background: #f0f3ff; }
 .expand-btn { cursor: pointer; color: #b0b8cc; user-select: none; }
 tr.expanded .expand-btn { color: #4361ee; }
 .expand-row td { padding: 0; }

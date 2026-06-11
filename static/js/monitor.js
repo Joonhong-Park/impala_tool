@@ -3,7 +3,6 @@
    ═══════════════════════════════════════════════════════ */
 
 let _qmSelectedHost  = null;
-let _qmSelectedColor = null;
 let _inflightQueries = [];
 
 function _parseProgress(progressStr) {
@@ -75,8 +74,7 @@ function qmSelectCoord(item) {
   item.style.color = item.dataset.color;
   item.style.fontWeight = '600';
 
-  _qmSelectedHost  = item.dataset.host;
-  _qmSelectedColor = item.dataset.color;
+  _qmSelectedHost = item.dataset.host;
 
   $('qm-infobar').style.borderLeftColor = item.dataset.color;
   const nameEl = $('qm-coord-name');

@@ -330,4 +330,15 @@ function qeReset() {
   $('qe-to').value   = '';
   qeSetPreset(1);
   _resetStateTabs();
+
+  if (_es) { _es.close(); _es = null; }
+  _allRows = [];
+  _rows    = [];
+  _openRows.clear();
+  $('qe-tbody').innerHTML = '';
+  $('qe-summary').style.display = 'none';
+  $('qe-progress').classList.remove('show');
+  $('qe-search-btn').disabled = false;
+  $('qe-stop-btn').style.display = 'none';
+  qeUpdateCounts();
 }

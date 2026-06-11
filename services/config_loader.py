@@ -66,9 +66,6 @@ class Config:
                     return coord
         return None
 
-    def coordinator_hosts(self) -> set[str]:
-        return {c.host for cl in self.clusters for c in cl.all_coordinators()}
-
 
 def load_config(path: str | Path) -> Config:
     data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))

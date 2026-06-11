@@ -116,7 +116,7 @@ def _matches_conditions(
 
 # ── HTTP 호출 ────────────────────────────────────────────────────
 
-def _cm_url(cluster: ClusterConfig, cm: CmGlobalConfig) -> str:
+def _cm_url(cluster: ClusterConfig) -> str:
     return (
         f"https://{cluster.cm.host}:{cluster.cm.port}"
         f"/api/{cluster.cm.api_version}"
@@ -132,7 +132,7 @@ async def _fetch_cluster(
 ) -> dict:
     """단일 클러스터에서 쿼리 목록을 가져오고, 실패 시 error 필드에 사유를 담아 반환."""
     try:
-        resp = await client.get(_cm_url(cluster, cm), params=params, timeout=cm.request_timeout)
+        resp = await client.get(_cm_url(cluster), params=params, timeout=cm.request_timeout)
         resp.raise_for_status()
         queries = resp.json().get("queries", [])
         for q in queries:

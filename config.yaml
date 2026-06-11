@@ -12,9 +12,8 @@ explorer:
   chunk_limit: 1000
 
 clusters:
-  # 클러스터를 임시로 비활성화하려면 해당 항목에 enabled: false 추가
-  # (필드 자체를 생략하거나 true로 두면 활성 상태)
   - id: cluster1
+    enabled: true
     color: "#4f8ef7"
     cm:
       host: cm1.internal
@@ -36,6 +35,7 @@ clusters:
           port: 25000
 
   - id: cluster2
+    enabled: true
     color: "#2dd4bf"
     cm:
       host: cm2.internal
@@ -59,7 +59,7 @@ clusters:
           port: 25000
 
   - id: cluster3
-    # enabled: false   # 이 주석을 해제하면 Explorer/Monitor 모두에서 즉시 숨겨짐
+    enabled: true
     color: "#a78bfa"
     cm:
       host: cm3.internal
@@ -89,6 +89,7 @@ clusters:
           port: 25000
 
   - id: cluster4
+    enabled: true
     color: "#fb923c"
     cm:
       host: cm4.internal
@@ -110,6 +111,7 @@ clusters:
           port: 25000
 
   - id: cluster5
+    enabled: true
     color: "#f472b6"
     cm:
       host: cm5.internal

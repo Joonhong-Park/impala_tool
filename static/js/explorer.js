@@ -84,11 +84,7 @@ function qeAddCondRow() {
   const row  = document.createElement('div');
   row.className = 'cond-row';
   row.innerHTML = `
-    <select class="cond-val" style="min-width:80px">
-      <option value="keyword">keyword</option>
-      <option value="user">user</option>
-    </select>
-    <input class="cond-val" type="text" placeholder="검색어" style="min-width:140px">
+    <input class="cond-val" type="text" placeholder="키워드" style="min-width:140px">
     <button class="cond-remove" onclick="this.closest('.cond-row').remove()" title="제거">×</button>`;
   area.appendChild(row);
 }
@@ -101,10 +97,11 @@ function qeBuildSearchParams() {
   const toVal      = $('qe-to').value.trim();
 
   const conditions = [];
-  document.querySelectorAll('#qe-conds .cond-row').forEach(row => {
-    const field = row.querySelector('select').value;
-    const value = row.querySelector('input').value.trim();
-    if (value) conditions.push({ field, value });
+  const userVal = ($('qe-user').value || '').trim();
+  if (userVal) conditions.push({ field: 'user', value: userVal });
+  document.querySelectorAll('#qe-conds input').forEach(input => {
+    const value = input.value.trim();
+    if (value) conditions.push({ field: 'keyword', value });
   });
 
   const params = new URLSearchParams();
@@ -253,7 +250,7 @@ function qeRenderTable() {
       <td style="white-space:nowrap;color:#5a6278">${esc(q.startTime || '')}</td>
       <td style="white-space:nowrap;color:#5a6278">${esc(q.endTime || '')}</td>
       <td>${statusHtml}</td>
-      <td><button class="btn-dl-profile" onclick="qeDownloadProfile('${esc(q._cluster)}','${esc(q.queryId)}')">프로파일 다운로드</button></td>`;
+      <td><button class="btn-dl-profile" title="프로파일 다운로드" onclick="qeDownloadProfile('${esc(q._cluster)}','${esc(q.queryId)}')">⬇</button></td>`;
     tbody.appendChild(tr);
 
     if (expanded) {
@@ -322,6 +319,7 @@ async function qeDownloadProfile(clusterId, queryId) {
 
 /* 초기화 */
 function qeReset() {
+  $('qe-user').value = '';
   $('qe-conds').innerHTML = '';
   qeAddCondRow();
   $('qe-cluster-select').value = '';

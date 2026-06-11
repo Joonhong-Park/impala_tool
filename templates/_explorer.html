@@ -1,11 +1,15 @@
 <div class="filters">
   <div class="filter-row">
     <div class="fg">
-      <label>검색 조건</label>
-      <div class="cond-area" id="qe-conds">
-        <!-- JS로 조건 블록 추가 -->
+      <label>사용자</label>
+      <input type="text" id="qe-user" placeholder="사용자명" style="min-width:140px">
+    </div>
+    <div class="fg">
+      <label>키워드</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+        <div class="cond-area" id="qe-conds"></div>
+        <button class="btn-add-cond" id="qe-add-cond">+ 추가</button>
       </div>
-      <button class="btn-add-cond" id="qe-add-cond">+ 추가</button>
     </div>
     <div class="fg">
       <label>빠른 범위</label>
@@ -92,7 +96,7 @@
         <th class="sortable" data-col="startTime" onclick="qeSort(this)">시작시간 ↕</th>
         <th class="sortable" data-col="endTime" onclick="qeSort(this)">종료시간 ↕</th>
         <th>queryStatus</th>
-        <th></th>
+        <th>프로파일</th>
       </tr>
     </thead>
     <tbody id="qe-tbody"></tbody>

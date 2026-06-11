@@ -77,7 +77,7 @@ def load_config(path: str | Path) -> Config:
             chunk_hours=explorer_raw.get("chunk_hours", 3 / 60),
             chunk_limit=explorer_raw.get("chunk_limit", 1000),
         ),
-        clusters=[_parse_cluster(cl) for cl in data["clusters"]],
+        clusters=[_parse_cluster(cl) for cl in data["clusters"] if cl.get("enabled", True)],
     )
 
 

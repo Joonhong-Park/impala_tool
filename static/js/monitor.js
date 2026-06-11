@@ -41,7 +41,7 @@ function buildClusterGroup(cl, coords) {
   coords.forEach(coord => {
     const item = document.createElement('div');
     item.className = 'coord-item';
-    item.textContent = coord.host;
+    item.textContent = coord.host.split('.')[0];
     item.dataset.host  = coord.host;
     item.dataset.port  = coord.port;
     item.dataset.color = cl.color;

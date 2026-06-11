@@ -52,8 +52,8 @@
 
 .btn-dl-profile {
   background: none; border: 1.5px solid #e2e8f4; color: #8892a4;
-  cursor: pointer; font-size: 11px; padding: 3px 10px; border-radius: 4px;
-  white-space: nowrap; transition: all .15s;
+  cursor: pointer; font-size: 14px; padding: 2px 7px; border-radius: 4px;
+  line-height: 1; transition: all .15s;
 }
 .btn-dl-profile:hover { border-color: #4361ee; color: #4361ee; background: #f0f3ff; }
 .expand-btn { cursor: pointer; color: #b0b8cc; user-select: none; }

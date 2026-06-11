@@ -107,8 +107,9 @@ async function qmFetchQueries() {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
 
-    const inflight  = data.in_flight_queries    || [];
-    const waiting   = data.waiting_to_be_closed || [];
+    const all_inflight = data.in_flight_queries || [];
+    const inflight  = all_inflight.filter(q => !q.waiting);
+    const waiting   = all_inflight.filter(q =>  q.waiting);
     const completed = data.completed_queries    || [];
 
     renderInflight(inflight);
@@ -183,19 +184,19 @@ function renderInflight(queries) {
   }
   queries.forEach(q => {
     _qmQueryCache.set(q.query_id, q);
-    const pct = parseInt(q.progress) || 0;
+    const pct = parseFloat(q.progress?.match(/\((\d+(?:\.\d+)?)%\)/)?.[1]) || 0;
     appendRow(tbody, `
       ${qidCell(q)}
       ${cancelCell(q)}
       ${metaCells(q)}
       <td><span class="badge-sm badge-running-sm">${esc(q.state || '')}</span></td>
       <td>
-        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
-        <span style="font-size:10px;color:#8892a4">${pct}%</span>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(pct, 100)}%"></div></div>
+        <span style="font-size:10px;color:#8892a4">${pct.toFixed(1)}%</span>
       </td>
       <td style="white-space:nowrap;color:#5a6278">${esc(q.start_time || '')}</td>
       <td style="font-weight:500">${esc(q.duration || '')}</td>
-      <td style="color:#b0b8cc">${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
+      <td style="color:#b0b8cc">${q.row_fetched != null ? q.row_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
       <td style="color:#8892a4;font-size:11px">${esc(q.last_event || '')}</td>
       <td style="font-size:11px;color:#8892a4">${esc(q.resource_pool || '')}</td>
@@ -222,7 +223,7 @@ function renderWaiting(queries) {
       <td style="white-space:nowrap;color:#5a6278">${esc(q.start_time || '')}</td>
       <td style="white-space:nowrap;color:#5a6278">${esc(q.end_time || '')}</td>
       <td style="font-weight:500">${esc(q.duration || '')}</td>
-      <td style="color:#27ae60">${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
+      <td style="color:#27ae60">${q.row_fetched != null ? q.row_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
       ${stmtCell(q)}`);
   });
@@ -246,7 +247,7 @@ function renderCompleted(queries) {
       <td style="white-space:nowrap;color:#5a6278">${esc(q.end_time || '')}</td>
       <td style="font-weight:500">${esc(q.duration || '')}</td>
       <td style="color:#8892a4">${esc(q.queued_duration || '—')}</td>
-      <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
+      <td>${q.row_fetched != null ? q.row_fetched : '—'}</td>
       <td>${esc(q.bytes_read || '—')}</td>
       <td>${esc(q.mem_usage || '')}</td>
       <td style="font-size:11px;color:#8892a4">${esc(q.resource_pool || '')}</td>
@@ -309,8 +310,8 @@ function openModal(host, queryId) {
   $('modal-query-id').textContent = queryId;
 
   const q = _qmQueryCache.get(queryId) || {};
-  const rows = q.rows_fetched != null
-    ? q.rows_fetched
+  const rows = q.row_fetched != null
+    ? q.row_fetched
     : (q.rowsProduced != null ? q.rowsProduced : '—');
 
   const fields = [

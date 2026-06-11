@@ -4,8 +4,13 @@ SSH 터널 연결 + 브라우저 자동 오픈 (Windows .exe용)
 
 빌드:
     pip install paramiko pyinstaller cryptography
-    pyinstaller --onefile --noconsole --name ImpalaTool launcher.py
-    → dist/ImpalaTool.exe 생성
+    pyinstaller --onefile --noconsole --name ImpalaTool \
+        --add-data "launcher_config.yaml;." launcher.py
+    → dist/ImpalaTool.exe 생성 (launcher_config.yaml 번들 포함)
+
+배포:
+    ImpalaTool.exe 단독 배포 가능.
+    exe 옆에 launcher_config.yaml을 두면 번들 설정보다 우선 적용(override).
 """
 
 import base64
@@ -28,9 +33,12 @@ from cryptography.fernet import Fernet, InvalidToken
 
 # ── 설정 파일 로드 ────────────────────────────────────────────────────────────
 def _load_launcher_config() -> dict:
+    # sys._MEIPASS: PyInstaller --onefile 번들 내부 경로
+    _meipass = Path(getattr(sys, "_MEIPASS", ""))
     search_paths = [
-        Path(sys.executable).parent / "launcher_config.yaml",
-        Path(__file__).parent / "launcher_config.yaml",
+        Path(sys.executable).parent / "launcher_config.yaml",  # exe 옆 (override)
+        _meipass / "launcher_config.yaml",                      # 번들 내부
+        Path(__file__).parent / "launcher_config.yaml",         # 개발 실행
         Path.cwd() / "launcher_config.yaml",
     ]
     for p in search_paths:
@@ -41,7 +49,16 @@ def _load_launcher_config() -> dict:
         + "\n".join(str(p) for p in search_paths)
     )
 
-_cfg = _load_launcher_config()
+try:
+    _cfg = _load_launcher_config()
+except FileNotFoundError as _e:
+    _root = tk.Tk()
+    _root.withdraw()
+    messagebox.showerror(
+        "설정 파일을 찾을 수 없음",
+        str(_e) + "\n\nlauncher_config.yaml을 ImpalaTool.exe와 같은 폴더에 넣어주세요.",
+    )
+    sys.exit(1)
 
 TUNNEL_SERVERS = [
     {"label": s["label"], "host": s["host"], "port": s["port"], "user": s["user"]}

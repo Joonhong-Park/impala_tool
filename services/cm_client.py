@@ -5,7 +5,7 @@ import logging
 import math
 import re
 from datetime import datetime, timedelta, timezone
-from typing import Any, AsyncGenerator, Optional, Union
+from typing import AsyncGenerator, Optional, Union
 
 import httpx
 
@@ -299,15 +299,3 @@ async def _stream_chunked(
     }
 
 
-async def fetch_all_clusters(
-    params: dict,
-    cluster_ids: Optional[list[str]] = None,
-    query_type: Optional[str] = None,
-    query_state: Optional[str] = None,
-    conditions: Optional[list[dict]] = None,
-) -> dict[str, Any]:
-    """스트림에서 done 이벤트만 추려 dict로 반환한다."""
-    async for event in stream_all_clusters(params, cluster_ids, query_type, query_state, conditions):
-        if event["type"] == "done":
-            return {k: v for k, v in event.items() if k != "type"}
-    return {"queries": [], "cluster_results": [], "total": 0}

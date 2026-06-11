@@ -78,27 +78,6 @@ async def list_clusters():
     return {"clusters": [c.id for c in _config.clusters]}
 
 
-@router.get("/queries")
-async def get_queries(
-    conditions: Optional[str] = Query(None),
-    query_type: Optional[str] = Query(None),
-    query_state: Optional[str] = Query(None),
-    hours: Optional[int] = Query(None),
-    from_time: Optional[str] = Query(None),
-    to_time: Optional[str] = Query(None),
-    clusters: Optional[str] = Query(None),
-):
-    req = _build_request(conditions, query_type, query_state, hours, from_time, to_time, clusters)
-    result = await cm_client.fetch_all_clusters(
-        params=req.params,
-        cluster_ids=req.cluster_ids,
-        query_type=req.query_type,
-        query_state=req.query_state,
-        conditions=req.conditions,
-    )
-    result["filter_applied"] = build_filter(req.query_type, req.query_state, req.conditions)
-    return result
-
 
 @router.get("/queries/stream")
 async def stream_queries(

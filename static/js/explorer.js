@@ -243,7 +243,7 @@ function qeRenderTable() {
     tr.innerHTML = `
       <td class="expand-btn" onclick="qeToggleRow('${esc(q.queryId)}')">${expanded ? '▼' : '▶'}</td>
       <td><span style="background:${clBadgeBg};color:${clBadgeColor};padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">${esc(q._cluster)}</span></td>
-      <td><span class="mono">${esc(q.queryId)}</span><button class="btn-dl-profile" onclick="qeDownloadProfile('${esc(q._cluster)}','${esc(q.queryId)}')">↓</button></td>
+      <td class="mono">${esc(q.queryId)}</td>
       <td style="font-weight:500">${esc(q.user || '')}</td>
       <td style="color:#8892a4">${esc((q.attributes && q.attributes.connected_user) || '')}</td>
       <td><span class="badge ${stateCls}">${esc(q.queryState || '')}</span></td>
@@ -252,14 +252,14 @@ function qeRenderTable() {
       <td>${q.rowsProduced != null ? q.rowsProduced.toLocaleString() : '—'}</td>
       <td style="white-space:nowrap;color:#5a6278">${esc(q.startTime || '')}</td>
       <td style="white-space:nowrap;color:#5a6278">${esc(q.endTime || '')}</td>
-      <td>${statusHtml}</td>`;
+      <td>${statusHtml}</td>
+      <td><button class="btn-dl-profile" onclick="qeDownloadProfile('${esc(q._cluster)}','${esc(q.queryId)}')">프로파일 다운로드</button></td>`;
     tbody.appendChild(tr);
 
     if (expanded) {
       const exp = document.createElement('tr');
       exp.className = 'expand-row';
-      const statusNote = statusVal ? '\n\n[Status] ' + esc(statusVal) : '';
-      exp.innerHTML = `<td colspan="12"><div class="expand-content">${esc(q.statement || '')}${statusNote}</div></td>`;
+      exp.innerHTML = `<td colspan="13"><div class="expand-content">${esc(q.statement || '')}</div></td>`;
       tbody.appendChild(exp);
     }
   });

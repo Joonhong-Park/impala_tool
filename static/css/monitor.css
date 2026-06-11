@@ -95,52 +95,6 @@
 .badge-exception-sm { background: #fde8e8; color: #c0392b; }
 .badge-waiting-sm   { background: #fff3e0; color: #e67e22; }
 
-/* 모달 */
-#modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center;
-}
-#modal-overlay.show { display: flex; }
-#modal {
-  background: #fff; border-radius: 12px; width: 860px; max-width: 95vw; max-height: 85vh;
-  display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2);
-}
-#modal-header {
-  padding: 16px 20px; border-bottom: 1px solid #e5e9f2;
-  display: flex; align-items: center; gap: 12px;
-}
-#modal-query-id { font-family: monospace; font-size: 13px; color: #4361ee; font-weight: 600; }
-#modal-close {
-  margin-left: auto; background: none; border: none; font-size: 20px;
-  cursor: pointer; color: #8892a4; line-height: 1;
-}
-#modal-close:hover { color: #1a1d2e; }
-.modal-tabs { display: flex; border-bottom: 1px solid #e5e9f2; padding: 0 20px; }
-.modal-tab {
-  padding: 9px 16px; cursor: pointer; color: #8892a4; font-size: 12px; font-weight: 500;
-  border-bottom: 2px solid transparent;
-}
-.modal-tab:hover { color: #4361ee; }
-.modal-tab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
-.modal-body { flex: 1; overflow: auto; padding: 20px; }
-.modal-pane { display: none; }
-.modal-pane.active { display: block; }
-.meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.meta-item { display: flex; flex-direction: column; gap: 3px; }
-.meta-item .mk { font-size: 10px; color: #8892a4; text-transform: uppercase; letter-spacing: .4px; font-weight: 600; }
-.meta-item .mv { font-size: 13px; color: #1a1d2e; font-weight: 500; }
-.profile-actions { display: flex; gap: 8px; margin-bottom: 12px; }
-.btn-dl {
-  padding: 5px 14px; border: 1.5px solid #e2e8f4; border-radius: 6px;
-  background: #f8faff; color: #5a6278; font-size: 11px; cursor: pointer; font-weight: 600; transition: all .15s;
-}
-.btn-dl:hover { border-color: #4361ee; color: #4361ee; }
-pre.profile-pre {
-  background: #f8faff; border: 1px solid #e5e9f2; border-radius: 6px;
-  padding: 14px; font-size: 11px; white-space: pre-wrap; word-break: break-all;
-  color: #3a4060; line-height: 1.6; max-height: 420px; overflow: auto;
-}
-
 /* 토스트 */
 #toast {
   position: fixed; bottom: 24px; right: 24px;

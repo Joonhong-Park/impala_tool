@@ -4,9 +4,11 @@
 
 let _qmSelectedHost  = null;
 let _qmSelectedColor = null;
+let _inflightQueries = [];
 
-/* 쿼리 데이터 캐시 — onclick에 JSON 직접 삽입 시 단일 인용부호 오류 방지 */
-const _qmQueryCache = new Map();
+function _parseProgress(progressStr) {
+  return parseFloat(progressStr?.match(/\((\d+(?:\.\d+)?)%\)/)?.[1]) || 0;
+}
 
 /* 사이드바 로드 */
 async function qmLoadSidebar() {
@@ -82,6 +84,7 @@ function qmSelectCoord(item) {
   nameEl.style.color     = '#1a1d2e';
   nameEl.style.fontStyle = 'normal';
   $('qm-refresh-btn').disabled = false;
+  $('qm-cancel-rows-btn').disabled = false;
 
   qmFetchQueries();
 }
@@ -111,6 +114,8 @@ async function qmFetchQueries() {
     const inflight  = all_inflight.filter(q => !q.waiting);
     const waiting   = all_inflight.filter(q =>  q.waiting);
     const completed = data.completed_queries    || [];
+
+    _inflightQueries = inflight;
 
     renderInflight(inflight);
     renderWaiting(waiting);
@@ -145,9 +150,8 @@ function stateBadge(state) {
     : '<span class="badge-sm badge-finished-sm">FINISHED</span>';
 }
 
-/* Query ID 셀 (클릭 → 상세 모달) */
 function qidCell(q) {
-  return `<td class="mono" onclick="openModal('${esc(_qmSelectedHost)}','${esc(q.query_id)}')">${esc(q.query_id)}</td>`;
+  return `<td class="mono">${esc(q.query_id)}</td>`;
 }
 
 /* Cancel 버튼 셀 */
@@ -183,8 +187,7 @@ function renderInflight(queries) {
     return;
   }
   queries.forEach(q => {
-    _qmQueryCache.set(q.query_id, q);
-    const pct = parseFloat(q.progress?.match(/\((\d+(?:\.\d+)?)%\)/)?.[1]) || 0;
+    const pct = _parseProgress(q.progress);
     appendRow(tbody, `
       ${qidCell(q)}
       ${cancelCell(q)}
@@ -213,7 +216,6 @@ function renderWaiting(queries) {
     return;
   }
   queries.forEach(q => {
-    _qmQueryCache.set(q.query_id, q);
     appendRow(tbody, `
       ${qidCell(q)}
       ${cancelCell(q)}
@@ -238,7 +240,6 @@ function renderCompleted(queries) {
     return;
   }
   queries.forEach(q => {
-    _qmQueryCache.set(q.query_id, q);
     appendRow(tbody, `
       ${qidCell(q)}
       ${metaCells(q)}
@@ -293,102 +294,32 @@ function qmRefreshCounts() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   쿼리 상세 모달
+   Rows Available 전체 취소
    ═══════════════════════════════════════════════════════ */
 
-let _modalHost  = null;
-let _modalQid   = null;
-let _planLoaded = false;
-let _profLoaded = false;
+async function qmCancelRowsAvailable() {
+  const targets = _inflightQueries.filter(q =>
+    _parseProgress(q.progress) === 100 &&
+    q.last_event === 'Rows available' &&
+    q.row_fetched === 0
+  );
 
-function openModal(host, queryId) {
-  _modalHost  = host;
-  _modalQid   = queryId;
-  _planLoaded = false;
-  _profLoaded = false;
-
-  $('modal-query-id').textContent = queryId;
-
-  const q = _qmQueryCache.get(queryId) || {};
-  const rows = q.row_fetched != null
-    ? q.row_fetched
-    : (q.rowsProduced != null ? q.rowsProduced : '—');
-
-  const fields = [
-    ['State',        q.state          || q.queryState || ''],
-    ['User',         q.effective_user || q.user       || ''],
-    ['DB',           q.default_db     || q.defaultDb  || ''],
-    ['Start',        q.start_time     || q.startTime  || ''],
-    ['End',          q.end_time       || q.endTime    || ''],
-    ['Duration',     q.duration       || ''],
-    ['Rows',         rows],
-    ['Bytes Read',   q.bytes_read     || '—'],
-    ['Mem Usage',    q.mem_usage      || ''],
-    ['Pool',         q.resource_pool  || ''],
-    ['Backends',     q.backends       || '—'],
-    ['Session Type', q.session_type   || '—'],
-  ];
-  $('modal-meta').innerHTML = fields.map(([k, v]) =>
-    `<div class="meta-item"><div class="mk">${esc(k)}</div><div class="mv">${esc(String(v))}</div></div>`
-  ).join('');
-
-  $('modal-stmt').textContent    = q.stmt || q.statement || '';
-  $('modal-plan').textContent    = '불러오는 중…';
-  $('modal-profile').textContent = '불러오는 중…';
-
-  $('dl-text').onclick   = () => dlProfile('text');
-  $('dl-json').onclick   = () => dlProfile('json');
-  $('dl-thrift').onclick = () => dlProfile('thrift');
-
-  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.modal-pane').forEach(p => p.classList.remove('active'));
-  document.querySelector('.modal-tab[data-pane="summary"]').classList.add('active');
-  $('pane-summary').classList.add('active');
-
-  $('modal-overlay').classList.add('show');
-}
-
-function closeModal(e) {
-  if (e && e.target !== $('modal-overlay') && e.target !== $('modal-close')) return;
-  $('modal-overlay').classList.remove('show');
-}
-
-function switchModalTab(tab) {
-  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.modal-pane').forEach(p => p.classList.remove('active'));
-  tab.classList.add('active');
-  const pane = tab.dataset.pane;
-  $('pane-' + pane).classList.add('active');
-
-  if (pane === 'plan' && !_planLoaded) {
-    _planLoaded = true;
-    loadModalDetail('plan', 'modal-plan');
+  if (!targets.length) {
+    showToast('해당하는 쿼리가 없습니다.');
+    return;
   }
-  if (pane === 'profile' && !_profLoaded) {
-    _profLoaded = true;
-    loadModalDetail('profile', 'modal-profile');
-  }
-}
 
-async function loadModalDetail(type, elId) {
-  const el = $(elId);
-  try {
-    const resp = await fetch(
-      `/monitor/detail/${encodeURIComponent(_modalHost)}/${encodeURIComponent(_modalQid)}/${type}`
-    );
-    el.textContent = resp.ok ? await resp.text() : `오류: HTTP ${resp.status}`;
-  } catch (e) {
-    el.textContent = `오류: ${e.message}`;
-  }
-}
+  if (!confirm(`Rows Available 상태 쿼리 ${targets.length}건을 모두 취소하시겠습니까?`)) return;
 
-function dlProfile(fmt) {
-  const ext = fmt === 'text' ? 'txt' : fmt;
-  const url = `/monitor/download/${encodeURIComponent(_modalHost)}/${encodeURIComponent(_modalQid)}/${fmt}`;
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `profile_${_modalQid}.${ext}`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const results = await Promise.allSettled(
+    targets.map(q =>
+      fetch(`/monitor/cancel/${encodeURIComponent(_qmSelectedHost)}/${encodeURIComponent(q.query_id)}`, { method: 'POST' })
+    )
+  );
+
+  const ok = results.filter(r => r.status === 'fulfilled' && r.value.ok).length;
+  const fail = targets.length - ok;
+
+  showToast(fail > 0 ? `${ok}건 취소 완료, ${fail}건 실패` : `${ok}건 취소 완료`, fail > 0);
+  qmFetchQueries();
 }

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ssl
 from typing import Union
 
 import httpx
@@ -15,7 +16,9 @@ class ImpalaClient:
         return f"https://{host}:{port}{path}"
 
     def _client(self, timeout: float) -> httpx.AsyncClient:
-        return httpx.AsyncClient(verify=self._verify, timeout=timeout)
+        # requests와 동일하게 시스템 인증서 사용
+        ctx = ssl.create_default_context()
+        return httpx.AsyncClient(verify=ctx, timeout=timeout)
 
     async def fetch_queries(self, host: str, port: int) -> dict:
         async with self._client(timeout=30) as c:

@@ -206,14 +206,14 @@ function renderInflight(queries) {
       <td><span class="badge-sm badge-running-sm">${esc(q.state || '')}</span></td>
       <td>
         <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(pct, 100)}%"></div></div>
-        <span style="font-size:10px;color:#8892a4">${pct.toFixed(1)}%</span>
+        <span style="color:#8892a4">${pct.toFixed(1)}%</span>
       </td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.start_time || '')}</td>
-      <td style="font-weight:500">${esc(q.duration || '')}</td>
-      <td style="color:#b0b8cc">${q.row_fetched != null ? q.row_fetched : '—'}</td>
-      <td>${esc(q.mem_usage || '')}</td>
-      <td style="color:#8892a4;font-size:11px">${esc(q.last_event || '')}</td>
-      <td style="font-size:11px;color:#8892a4">${esc(q.resource_pool || '')}</td>
+      <td style="white-space:nowrap;color:#8892a4">${esc(q.start_time || '')}</td>
+      <td>${esc(q.duration || '')}</td>
+      <td style="color:#5a6278">${q.row_fetched != null ? q.row_fetched : '—'}</td>
+      <td style="color:#5a6278">${esc(q.mem_usage || '')}</td>
+      <td style="color:#8892a4">${esc(q.last_event || '')}</td>
+      <td style="color:#8892a4">${esc(q.resource_pool || '')}</td>
       ${stmtCell(q)}`);
   });
 }
@@ -232,12 +232,12 @@ function renderWaiting(queries) {
       ${cancelCell(q)}
       ${metaCells(q)}
       <td>${stateBadge(q.state)}</td>
-      <td><span style="color:#e67e22;font-weight:700">${esc(q.waiting_time || '')}</span></td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.start_time || '')}</td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.end_time || '')}</td>
-      <td style="font-weight:500">${esc(q.duration || '')}</td>
-      <td style="color:#27ae60">${q.row_fetched != null ? q.row_fetched : '—'}</td>
-      <td>${esc(q.mem_usage || '')}</td>
+      <td style="color:#e67e22;font-weight:600">${esc(q.waiting_time || '')}</td>
+      <td style="white-space:nowrap;color:#8892a4">${esc(q.start_time || '')}</td>
+      <td style="white-space:nowrap;color:#8892a4">${esc(q.end_time || '')}</td>
+      <td>${esc(q.duration || '')}</td>
+      <td style="color:#5a6278">${q.row_fetched != null ? q.row_fetched : '—'}</td>
+      <td style="color:#5a6278">${esc(q.mem_usage || '')}</td>
       ${stmtCell(q)}`);
   });
 }
@@ -255,14 +255,14 @@ function renderCompleted(queries) {
       ${qidCell(q)}
       ${metaCells(q)}
       <td>${stateBadge(q.state)}</td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.start_time || '')}</td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.end_time || '')}</td>
-      <td style="font-weight:500">${esc(q.duration || '')}</td>
+      <td style="white-space:nowrap;color:#8892a4">${esc(q.start_time || '')}</td>
+      <td style="white-space:nowrap;color:#8892a4">${esc(q.end_time || '')}</td>
+      <td>${esc(q.duration || '')}</td>
       <td style="color:#8892a4">${esc(q.queued_duration || '—')}</td>
-      <td>${q.row_fetched != null ? q.row_fetched : '—'}</td>
-      <td>${esc(q.bytes_read || '—')}</td>
-      <td>${esc(q.mem_usage || '')}</td>
-      <td style="font-size:11px;color:#8892a4">${esc(q.resource_pool || '')}</td>
+      <td style="color:#5a6278">${q.row_fetched != null ? q.row_fetched : '—'}</td>
+      <td style="color:#5a6278">${esc(q.bytes_read || '—')}</td>
+      <td style="color:#5a6278">${esc(q.mem_usage || '')}</td>
+      <td style="color:#8892a4">${esc(q.resource_pool || '')}</td>
       ${stmtCell(q)}`);
   });
 }

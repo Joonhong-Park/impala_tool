@@ -76,11 +76,11 @@
 .qm-tbl-wrap { overflow-x: auto; }
 .qm-tbl { width: 100%; border-collapse: collapse; }
 .qm-tbl th {
-  padding: 8px 12px; text-align: left; font-size: 10px; color: #b0b8cc;
+  padding: 6px 10px; text-align: left; font-size: 10px; color: #b0b8cc;
   text-transform: uppercase; letter-spacing: .4px; font-weight: 700;
   border-bottom: 1px solid #f0f3f9; background: #fafbfe;
 }
-.qm-tbl td { padding: 8px 12px; border-bottom: 1px solid #f4f6fb; font-size: 12px; vertical-align: middle; }
+.qm-tbl td { padding: 6px 10px; border-bottom: 1px solid #f4f6fb; font-size: 12px; vertical-align: middle; }
 .qm-tbl tr:hover td { background: #f8faff; }
 .qm-tbl tr:last-child td { border-bottom: none; }
 .prog-wrap { background: #e5e9f2; border-radius: 4px; height: 5px; width: 64px; display: inline-block; vertical-align: middle; margin-right: 6px; }

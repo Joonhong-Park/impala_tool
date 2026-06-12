@@ -16,8 +16,10 @@ class ImpalaClient:
         return f"https://{host}:{port}{path}"
 
     def _client(self, timeout: float) -> httpx.AsyncClient:
+        if not self._verify:
+            return httpx.AsyncClient(verify=False, timeout=timeout)
         ctx = ssl.create_default_context()
-        if isinstance(self._verify, str) and self._verify:
+        if isinstance(self._verify, str):
             ctx.load_verify_locations(cafile=self._verify)
         return httpx.AsyncClient(verify=ctx, timeout=timeout)
 

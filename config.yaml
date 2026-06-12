@@ -1,6 +1,7 @@
 app:
   port: 9191
   ca_bundle: /etc/pki/tls/certs/ca-bundle.crt
+  impalad_verify: false   # impalad SSL 검증 (내부망 인증서 문제 시 false)
 
 cm:
   username: admin

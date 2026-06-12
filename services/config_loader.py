@@ -37,6 +37,7 @@ class ClusterConfig:
 class AppConfig:
     port: int
     ca_bundle: str
+    impalad_verify: bool = False
 
 
 @dataclass
@@ -71,7 +72,11 @@ def load_config(path: str | Path) -> Config:
     data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     explorer_raw = data.get("explorer", {})
     return Config(
-        app=AppConfig(**data["app"]),
+        app=AppConfig(
+            port=data["app"]["port"],
+            ca_bundle=data["app"]["ca_bundle"],
+            impalad_verify=data["app"].get("impalad_verify", False),
+        ),
         cm=CmGlobalConfig(**data["cm"]),
         explorer=ExplorerConfig(
             chunk_hours=explorer_raw.get("chunk_hours", 3 / 60),

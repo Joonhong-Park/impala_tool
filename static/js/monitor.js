@@ -131,6 +131,15 @@ async function qmFetchQueries() {
     updateSecCnt('sec-cnt-waiting',   waiting.length,   'amber');
     updateSecCnt('sec-cnt-completed', completed.length, 'green');
   } catch (e) {
+    renderInflight([]);
+    renderWaiting([]);
+    renderCompleted([]);
+    $('ib-inflight').textContent  = '—';
+    $('ib-waiting').textContent   = '—';
+    $('ib-completed').textContent = '—';
+    updateSecCnt('sec-cnt-inflight',  0, 'blue');
+    updateSecCnt('sec-cnt-waiting',   0, 'amber');
+    updateSecCnt('sec-cnt-completed', 0, 'green');
     showToast(`조회 실패: ${e.message}`, true);
   }
 }

@@ -36,10 +36,10 @@
     <div id="qm-sections">
 
       <div class="qm-section" id="sec-inflight">
-        <div class="qm-sec-hdr" onclick="toggleSec(this)">
+        <div class="qm-sec-hdr">
           <span class="qm-sec-title">① Queries In Flight</span>
           <span class="sec-cnt" id="sec-cnt-inflight">0</span>
-          <span class="chev">▾</span>
+          <span class="chev" onclick="toggleSec(this.closest('.qm-sec-hdr'))">▾</span>
         </div>
         <div class="qm-sec-body">
           <div class="qm-tbl-wrap">
@@ -56,10 +56,10 @@
       </div>
 
       <div class="qm-section" id="sec-waiting">
-        <div class="qm-sec-hdr" onclick="toggleSec(this)">
+        <div class="qm-sec-hdr">
           <span class="qm-sec-title">② Waiting to be Closed</span>
           <span class="sec-cnt" id="sec-cnt-waiting">0</span>
-          <span class="chev">▾</span>
+          <span class="chev" onclick="toggleSec(this.closest('.qm-sec-hdr'))">▾</span>
         </div>
         <div class="qm-sec-body">
           <div class="qm-tbl-wrap">
@@ -76,10 +76,10 @@
       </div>
 
       <div class="qm-section" id="sec-completed">
-        <div class="qm-sec-hdr" onclick="toggleSec(this)">
+        <div class="qm-sec-hdr">
           <span class="qm-sec-title">③ Last Completed Queries</span>
           <span class="sec-cnt" id="sec-cnt-completed">0</span>
-          <span class="chev">▾</span>
+          <span class="chev" onclick="toggleSec(this.closest('.qm-sec-hdr'))">▾</span>
         </div>
         <div class="qm-sec-body">
           <div class="qm-tbl-wrap">

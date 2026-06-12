@@ -103,6 +103,10 @@ function toggleSec(hdr) {
 /* 쿼리 조회 */
 async function qmFetchQueries() {
   const host = _qmSelectedHost;
+  document.querySelectorAll('.qm-sec-body').forEach(b => {
+    b.classList.remove('collapsed');
+    b.previousElementSibling.querySelector('.chev').textContent = '▾';
+  });
   try {
     const resp = await fetch(`/monitor/queries/${encodeURIComponent(host)}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);

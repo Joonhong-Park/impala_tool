@@ -58,9 +58,10 @@
 }
 .qm-sec-hdr {
   padding: 10px 16px; display: flex; align-items: center; gap: 10px;
-  cursor: pointer; user-select: none; border-bottom: 1px solid #f0f3f9; transition: background .1s;
+  user-select: none; border-bottom: 1px solid #f0f3f9;
 }
-.qm-sec-hdr:hover { background: #f8faff; }
+.qm-sec-hdr .chev { cursor: pointer; }
+.qm-sec-hdr .chev:hover { color: #4361ee; }
 .qm-sec-title { font-size: 13px; font-weight: 700; color: #1a1d2e; }
 .sec-cnt {
   background: #f0f3f9; color: #8892a4; font-size: 11px;
@@ -70,6 +71,7 @@
 .sec-cnt.amber  { background: #fff3e0; color: #e67e22; }
 .sec-cnt.green  { background: #e8f6ef; color: #27ae60; }
 .qm-sec-hdr .chev { margin-left: auto; color: #b0b8cc; font-size: 12px; transition: transform .2s; }
+.qm-sec-body { max-height: 360px; overflow-y: auto; }
 .qm-sec-body.collapsed { display: none; }
 .qm-tbl-wrap { overflow-x: auto; }
 .qm-tbl { width: 100%; border-collapse: collapse; }

@@ -16,8 +16,9 @@ class ImpalaClient:
         return f"https://{host}:{port}{path}"
 
     def _client(self, timeout: float) -> httpx.AsyncClient:
-        # requests와 동일하게 시스템 인증서 사용
         ctx = ssl.create_default_context()
+        if isinstance(self._verify, str) and self._verify:
+            ctx.load_verify_locations(cafile=self._verify)
         return httpx.AsyncClient(verify=ctx, timeout=timeout)
 
     async def fetch_queries(self, host: str, port: int) -> dict:

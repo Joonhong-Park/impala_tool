@@ -184,7 +184,7 @@ async def stream_all_clusters(
     targets = _resolve_targets(cluster_ids)
     auth = (cfg.cm.username, cfg.cm.password)
 
-    async with httpx.AsyncClient(verify=_verify, auth=auth) as client:
+    async with httpx.AsyncClient(verify=False, auth=auth) as client:
         has_filters = _has_active_conditions(conditions) or query_type or query_state
         if not has_filters:
             async for ev in _stream_single_shot(client, targets, cfg.cm, params, query_type, query_state):

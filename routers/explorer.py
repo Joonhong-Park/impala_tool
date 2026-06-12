@@ -125,7 +125,7 @@ async def get_profile(cluster_id: str, query_id: str):
     )
 
     try:
-        async with httpx.AsyncClient(verify=_config.app.ca_bundle, timeout=_config.cm.request_timeout) as client:
+        async with httpx.AsyncClient(verify=False, timeout=_config.cm.request_timeout) as client:
             resp = await client.get(url, auth=(_config.cm.username, _config.cm.password))
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)

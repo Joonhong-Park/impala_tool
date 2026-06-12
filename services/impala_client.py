@@ -15,7 +15,7 @@ class ImpalaClient:
         return f"https://{host}:{port}{path}"
 
     def _client(self, timeout: float) -> httpx.AsyncClient:
-        return httpx.AsyncClient(verify=self._verify, timeout=timeout)
+        return httpx.AsyncClient(verify=False, timeout=timeout)
 
     async def fetch_queries(self, host: str, port: int) -> dict:
         async with self._client(timeout=30) as c:

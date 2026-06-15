@@ -184,6 +184,7 @@
   gap: var(--sp-2);
   user-select: none;
   border-bottom: 1px solid var(--c-border);
+  cursor: pointer;
 }
 
 .qm-sec-hdr .chev {
@@ -222,7 +223,7 @@
 
 .qm-tbl thead { position: relative; }
 
-.qm-tbl { width: 100%; border-collapse: collapse; }
+.qm-tbl { width: 100%; border-collapse: collapse; min-width: 1100px; }
 
 .qm-tbl th {
   padding: var(--sp-1) var(--sp-2);

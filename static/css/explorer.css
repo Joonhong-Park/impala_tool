@@ -251,6 +251,7 @@ th {
   text-transform: uppercase;
   letter-spacing: .4px;
   border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
 }
 
 td {

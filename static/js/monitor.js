@@ -3,11 +3,7 @@
    ═══════════════════════════════════════════════════════ */
 
 let _qmSelectedHost  = null;
-let _inflightQueries = [];   /* Rows Available 취소에 사용 */
-let _qmInflight      = [];
-let _qmWaiting       = [];
-let _qmCompleted     = [];
-let _qmOpenRows      = new Set();
+let _inflightQueries = [];
 
 function _parseProgress(progressStr) {
   return parseFloat(progressStr?.match(/\((\d+(?:\.\d+)?)%\)/)?.[1]) || 0;
@@ -104,15 +100,6 @@ function toggleSec(hdr) {
   chev.textContent = collapsed ? '▸' : '▾';
 }
 
-/* 행 확장 토글 */
-function qmToggleRow(queryId, section) {
-  if (_qmOpenRows.has(queryId)) _qmOpenRows.delete(queryId);
-  else _qmOpenRows.add(queryId);
-  if (section === 'inflight')  renderInflight(_qmInflight);
-  else if (section === 'waiting')   renderWaiting(_qmWaiting);
-  else if (section === 'completed') renderCompleted(_qmCompleted);
-}
-
 /* 쿼리 조회 */
 async function qmFetchQueries() {
   const host = _qmSelectedHost;
@@ -131,10 +118,6 @@ async function qmFetchQueries() {
     const completed = data.completed_queries    || [];
 
     _inflightQueries = inflight;
-    _qmInflight  = inflight;
-    _qmWaiting   = waiting;
-    _qmCompleted = completed;
-    _qmOpenRows.clear();
 
     renderInflight(inflight);
     renderWaiting(waiting);
@@ -148,7 +131,6 @@ async function qmFetchQueries() {
     updateSecCnt('sec-cnt-waiting',   waiting.length,   'amber');
     updateSecCnt('sec-cnt-completed', completed.length, 'green');
   } catch (e) {
-    _qmInflight = _qmWaiting = _qmCompleted = [];
     _inflightQueries = [];
     renderInflight([]);
     renderWaiting([]);
@@ -195,13 +177,8 @@ function metaCells(q) {
     <td>${esc(q.stmt_type || '')}</td>`;
 }
 
-function expandBtn(queryId, section) {
-  const open = _qmOpenRows.has(queryId);
-  return `<td class="expand-btn" onclick="qmToggleRow('${esc(queryId)}','${section}')">${open ? '▼' : '▶'}</td>`;
-}
-
-function expandRow(stmt, colspan) {
-  return `<tr class="expand-row"><td colspan="${colspan}"><div class="expand-content">${esc(stmt)}</div></td></tr>`;
+function stmtCell(q) {
+  return `<td><div class="stmt-cell" title="${esc(q.stmt || '')}">${esc(q.stmt || '')}</div></td>`;
 }
 
 /* ── 렌더: In-Flight ── */
@@ -209,16 +186,13 @@ function renderInflight(queries) {
   const tbody = $('tbody-inflight');
   tbody.innerHTML = '';
   if (!queries.length) {
-    tbody.innerHTML = emptyRow(15, '실행 중인 쿼리 없음');
+    tbody.innerHTML = emptyRow(14, '실행 중인 쿼리 없음');
     return;
   }
   queries.forEach(q => {
-    const pct      = _parseProgress(q.progress);
-    const expanded = _qmOpenRows.has(q.query_id);
-    const tr = document.createElement('tr');
-    if (expanded) tr.classList.add('expanded');
+    const pct = _parseProgress(q.progress);
+    const tr  = document.createElement('tr');
     tr.innerHTML = `
-      ${expandBtn(q.query_id, 'inflight')}
       ${qidCell(q)}
       ${cancelCell(q)}
       ${metaCells(q)}
@@ -233,9 +207,8 @@ function renderInflight(queries) {
       <td>${esc(q.mem_usage || '')}</td>
       <td>${esc(q.last_event || '')}</td>
       <td>${esc(q.resource_pool || '')}</td>
-      <td><div class="stmt-cell">${esc(q.stmt || '')}</div></td>`;
+      ${stmtCell(q)}`;
     tbody.appendChild(tr);
-    if (expanded) tbody.insertAdjacentHTML('beforeend', expandRow(q.stmt || '', 15));
   });
 }
 
@@ -244,15 +217,12 @@ function renderWaiting(queries) {
   const tbody = $('tbody-waiting');
   tbody.innerHTML = '';
   if (!queries.length) {
-    tbody.innerHTML = emptyRow(14, '대기 중인 쿼리 없음');
+    tbody.innerHTML = emptyRow(13, '대기 중인 쿼리 없음');
     return;
   }
   queries.forEach(q => {
-    const expanded = _qmOpenRows.has(q.query_id);
     const tr = document.createElement('tr');
-    if (expanded) tr.classList.add('expanded');
     tr.innerHTML = `
-      ${expandBtn(q.query_id, 'waiting')}
       ${qidCell(q)}
       ${cancelCell(q)}
       ${metaCells(q)}
@@ -263,9 +233,8 @@ function renderWaiting(queries) {
       <td>${esc(q.duration || '')}</td>
       <td>${q.row_fetched != null ? q.row_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
-      <td><div class="stmt-cell">${esc(q.stmt || '')}</div></td>`;
+      ${stmtCell(q)}`;
     tbody.appendChild(tr);
-    if (expanded) tbody.insertAdjacentHTML('beforeend', expandRow(q.stmt || '', 14));
   });
 }
 
@@ -274,15 +243,12 @@ function renderCompleted(queries) {
   const tbody = $('tbody-completed');
   tbody.innerHTML = '';
   if (!queries.length) {
-    tbody.innerHTML = emptyRow(15, '완료된 쿼리 없음');
+    tbody.innerHTML = emptyRow(14, '완료된 쿼리 없음');
     return;
   }
   queries.forEach(q => {
-    const expanded = _qmOpenRows.has(q.query_id);
     const tr = document.createElement('tr');
-    if (expanded) tr.classList.add('expanded');
     tr.innerHTML = `
-      ${expandBtn(q.query_id, 'completed')}
       ${qidCell(q)}
       ${metaCells(q)}
       <td>${stateBadge(q.state)}</td>
@@ -294,9 +260,8 @@ function renderCompleted(queries) {
       <td>${esc(q.bytes_read || '—')}</td>
       <td>${esc(q.mem_usage || '')}</td>
       <td>${esc(q.resource_pool || '')}</td>
-      <td><div class="stmt-cell">${esc(q.stmt || '')}</div></td>`;
+      ${stmtCell(q)}`;
     tbody.appendChild(tr);
-    if (expanded) tbody.insertAdjacentHTML('beforeend', expandRow(q.stmt || '', 15));
   });
 }
 
@@ -314,12 +279,8 @@ async function qmCancel(btn, queryId) {
     row.style.opacity = '0.4';
     row.style.transition = 'opacity .4s';
     setTimeout(() => {
-      const nextRow = row.nextElementSibling;
-      if (nextRow && nextRow.classList.contains('expand-row')) nextRow.remove();
       row.remove();
-      _qmInflight = _qmInflight.filter(q => q.query_id !== queryId);
-      _inflightQueries = _qmInflight;
-      _qmOpenRows.delete(queryId);
+      _inflightQueries = _inflightQueries.filter(q => q.query_id !== queryId);
       qmRefreshCounts();
       showToast('쿼리가 취소되었습니다.');
     }, 400);

@@ -36,16 +36,15 @@
     <div id="qm-sections">
 
       <div class="qm-section" id="sec-inflight">
-        <div class="qm-sec-hdr">
+        <div class="qm-sec-hdr" onclick="toggleSec(this)">
           <span class="qm-sec-title">① Queries In Flight</span>
           <span class="sec-cnt" id="sec-cnt-inflight">0</span>
-          <span class="chev" onclick="toggleSec(this.closest('.qm-sec-hdr'))">▾</span>
+          <span class="chev">▾</span>
         </div>
         <div class="qm-sec-body">
           <div class="qm-tbl-wrap">
             <table class="qm-tbl">
               <thead><tr>
-                <th style="width:28px"></th>
                 <th>Query ID</th><th>Cancel</th><th>User</th><th>DB</th><th>Type</th>
                 <th>State</th><th>Progress</th><th>Start</th><th>Duration</th>
                 <th>Rows</th><th>Mem</th><th>Last Event</th><th>Pool</th><th>Statement</th>
@@ -57,16 +56,15 @@
       </div>
 
       <div class="qm-section" id="sec-waiting">
-        <div class="qm-sec-hdr">
+        <div class="qm-sec-hdr" onclick="toggleSec(this)">
           <span class="qm-sec-title">② Waiting to be Closed</span>
           <span class="sec-cnt" id="sec-cnt-waiting">0</span>
-          <span class="chev" onclick="toggleSec(this.closest('.qm-sec-hdr'))">▾</span>
+          <span class="chev">▾</span>
         </div>
         <div class="qm-sec-body">
           <div class="qm-tbl-wrap">
             <table class="qm-tbl">
               <thead><tr>
-                <th style="width:28px"></th>
                 <th>Query ID</th><th>Cancel</th><th>User</th><th>DB</th><th>Type</th>
                 <th>State</th><th>Waiting Time</th><th>Start</th><th>End</th>
                 <th>Duration</th><th>Rows</th><th>Mem</th><th>Statement</th>
@@ -78,16 +76,15 @@
       </div>
 
       <div class="qm-section" id="sec-completed">
-        <div class="qm-sec-hdr">
+        <div class="qm-sec-hdr" onclick="toggleSec(this)">
           <span class="qm-sec-title">③ Last Completed Queries</span>
           <span class="sec-cnt" id="sec-cnt-completed">0</span>
-          <span class="chev" onclick="toggleSec(this.closest('.qm-sec-hdr'))">▾</span>
+          <span class="chev">▾</span>
         </div>
         <div class="qm-sec-body">
           <div class="qm-tbl-wrap">
             <table class="qm-tbl">
               <thead><tr>
-                <th style="width:28px"></th>
                 <th>Query ID</th><th>User</th><th>DB</th><th>Type</th><th>State</th>
                 <th>Start</th><th>End</th><th>Duration</th><th>Queued</th>
                 <th>Rows</th><th>Bytes Read</th><th>Mem Peak</th><th>Pool</th><th>Statement</th>

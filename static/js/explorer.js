@@ -12,7 +12,6 @@ let _sortAsc       = false;
 let _activeHours   = 1;
 let _es            = null;
 let _page          = 1;
-let _searchRange   = '';
 const _pageSize    = 100;
 
 /* ISO 시각 → KST "YYYY-MM-DD HH:mm:ss" */
@@ -134,19 +133,6 @@ function _resetStateTabs() {
   document.querySelector('#qe-cluster-tabs [data-cluster=""]').classList.add('active');
 }
 
-/* 검색 범위 텍스트 계산 */
-function _computeSearchRange() {
-  const fromVal = $('qe-from').value.trim();
-  const toVal   = $('qe-to').value.trim();
-  if (fromVal && toVal) return `${fromVal} ~ ${toVal}`;
-  if (fromVal)          return `${fromVal} ~ +${_activeHours}h`;
-  if (toVal)            return `-${_activeHours}h ~ ${toVal}`;
-  const now  = new Date();
-  const from = new Date(now.getTime() - _activeHours * 3600000);
-  const fmt  = d => d.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16);
-  return `${fmt(from)} ~ ${fmt(now)}`;
-}
-
 /* 검색 */
 function qeSearch() {
   if (_es) { _es.close(); _es = null; }
@@ -159,12 +145,11 @@ function qeSearch() {
   $('qe-pagination').style.display = 'none';
 
   const params = qeBuildSearchParams();
-  _searchRange = _computeSearchRange();
 
   $('qe-search-btn').disabled = true;
   $('qe-stop-btn').style.display = '';
   $('qe-progress').classList.add('show');
-  $('qe-progress-text').textContent = `${_searchRange} 조회 중…`;
+  $('qe-progress-text').textContent = '검색 중…';
   $('qe-progress-bar').style.width = '0%';
   $('qe-summary').style.display = 'none';
 
@@ -175,7 +160,7 @@ function qeSearch() {
       const pct = ev.total > 0 ? Math.round(ev.chunk / ev.total * 100) : 0;
       $('qe-progress-bar').style.width = pct + '%';
       $('qe-progress-text').textContent =
-        `${_searchRange} 조회 중…  수집: ${ev.collected}건`;
+        `검색 중… 청크 ${ev.chunk}/${ev.total || '?'}  수집: ${ev.collected}건`;
       if (ev.new_queries && ev.new_queries.length > 0) {
         _allRows.push(...ev.new_queries);
         qeApplyFilters();

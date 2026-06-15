@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import math
 import re
@@ -132,6 +133,14 @@ async def fetch_query_profile(cluster: ClusterConfig, query_id: str) -> httpx.Re
         return await client.get(url)
 
 
+def _safe_json(resp: httpx.Response) -> dict:
+    """응답을 JSON으로 파싱한다. non-UTF-8 바이트는 U+FFFD로 대체 후 재시도."""
+    try:
+        return resp.json()
+    except UnicodeDecodeError:
+        return json.loads(resp.content.decode("utf-8", errors="replace"))
+
+
 async def _fetch_cluster(
     client: httpx.AsyncClient,
     cluster: ClusterConfig,
@@ -142,7 +151,7 @@ async def _fetch_cluster(
     try:
         resp = await client.get(_cm_url(cluster), params=params, timeout=cm.request_timeout)
         resp.raise_for_status()
-        queries = resp.json().get("queries", [])
+        queries = _safe_json(resp).get("queries", [])
         for q in queries:
             q["_cluster"] = cluster.id
         return {"cluster": cluster.id, "queries": queries, "error": None}

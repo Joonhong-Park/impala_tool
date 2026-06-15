@@ -254,7 +254,7 @@ th {
 }
 
 td {
-  padding: var(--sp-1) var(--sp-2);
+  padding: var(--sp-2) var(--sp-2);
   border-bottom: 1px solid var(--c-border);
   font-size: var(--font-base);
   vertical-align: middle;
@@ -267,7 +267,6 @@ tr:hover td { background: var(--c-accent-bg); }
   font-family: inherit;
   font-size: var(--font-sm);
   font-weight: var(--fw-normal);
-  color: var(--c-muted);
 }
 
 .stmt-cell {
@@ -275,7 +274,6 @@ tr:hover td { background: var(--c-accent-bg); }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--c-muted);
 }
 
 .sortable { cursor: pointer; }
@@ -301,7 +299,7 @@ tr.expanded .expand-btn { color: var(--c-accent); }
   font-size: var(--font-sm);
   white-space: pre-wrap;
   word-break: break-all;
-  color: var(--c-muted);
+  color: var(--c-text);
 }
 
 /* ── 상태 블록 ── */
@@ -321,6 +319,73 @@ tr.expanded .expand-btn { color: var(--c-accent); }
   border-radius: var(--radius-sm);
   font-size: var(--font-sm);
   font-weight: var(--fw-semi);
+}
+
+/* ── 상태 셀 ── */
+.status-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 확장 행 queryStatus ── */
+.expand-status {
+  padding: var(--sp-1) var(--sp-4) var(--sp-2);
+  background: var(--c-bg);
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: var(--font-sm);
+  color: var(--c-exception-text);
+  border-top: 1px solid var(--c-border);
+}
+
+/* ── 페이지네이션 ── */
+#qe-pagination {
+  padding: var(--sp-2) var(--sp-5);
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+.pg-info {
+  font-size: var(--font-sm);
+  color: var(--c-muted);
+  margin-right: var(--sp-2);
+}
+
+.btn-pg {
+  padding: 0 var(--sp-2);
+  height: var(--btn-h-sm);
+  min-width: 28px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+
+.btn-pg:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+  background: var(--c-accent-bg);
+}
+
+.btn-pg.active {
+  background: var(--c-accent);
+  color: var(--c-surface);
+  border-color: var(--c-accent);
+}
+
+.btn-pg:disabled {
+  opacity: .4;
+  cursor: not-allowed;
 }
 
 /* ── 프로파일 다운로드 버튼 ── */

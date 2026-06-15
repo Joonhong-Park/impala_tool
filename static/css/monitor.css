@@ -163,7 +163,7 @@
 /* ── 섹션 영역 ── */
 #qm-sections {
   flex: 1;
-  overflow-y: auto;
+  overflow: auto;
   padding: var(--sp-4);
   display: flex;
   flex-direction: column;
@@ -175,7 +175,6 @@
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
 }
 
 .qm-sec-hdr {
@@ -216,11 +215,12 @@
 .sec-cnt.amber { background: var(--c-queued-bg);    color: var(--c-queued-text); }
 .sec-cnt.green { background: var(--c-finished-bg);  color: var(--c-finished-text); }
 
-.qm-sec-body { max-height: 360px; overflow-y: auto; }
 .qm-sec-body.collapsed { display: none; }
 
 /* ── 모니터 테이블 ── */
-.qm-tbl-wrap { overflow-x: auto; }
+.qm-tbl-wrap { overflow: visible; }
+
+.qm-tbl thead { position: relative; }
 
 .qm-tbl { width: 100%; border-collapse: collapse; }
 
@@ -237,7 +237,7 @@
 }
 
 .qm-tbl td {
-  padding: var(--sp-1) var(--sp-2);
+  padding: var(--sp-2) var(--sp-2);
   border-bottom: 1px solid var(--c-border);
   font-size: var(--font-base);
   vertical-align: middle;
@@ -265,8 +265,8 @@
 
 /* ── Cancel 버튼 ── */
 .btn-cancel {
-  background: none;
-  border: 1px solid var(--c-exception-bg);
+  background: var(--c-exception-bg);
+  border: 1px solid var(--c-exception-text);
   color: var(--c-exception-text);
   font-size: var(--font-sm);
   font-weight: var(--fw-semi);
@@ -275,10 +275,13 @@
   height: var(--btn-h-sm);
   cursor: pointer;
   font-family: inherit;
-  transition: background .15s;
+  transition: all .15s;
 }
 
-.btn-cancel:hover { background: var(--c-exception-bg); }
+.btn-cancel:hover {
+  background: var(--c-exception-text);
+  color: var(--c-surface);
+}
 .btn-cancel:disabled { opacity: .5; cursor: not-allowed; }
 
 /* ── 소형 배지 ── */

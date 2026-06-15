@@ -11,6 +11,8 @@ let _sortCol       = 'startTime';
 let _sortAsc       = false;
 let _activeHours   = 1;
 let _es            = null;
+let _page          = 1;
+const _pageSize    = 100;
 
 /* duration(ms) → 사람이 읽는 문자열 */
 function formatDuration(ms) {
@@ -129,8 +131,10 @@ function qeSearch() {
   _resetStateTabs();
   _allRows = [];
   _rows    = [];
+  _page    = 1;
   _openRows.clear();
   $('qe-tbody').innerHTML = '';
+  $('qe-pagination').style.display = 'none';
 
   const params = qeBuildSearchParams();
 
@@ -185,30 +189,39 @@ function qeFinish(ev) {
 /* 필터 적용 */
 function qeApplyFilters() {
   let rows = _allRows;
-  if (_activeState)   rows = rows.filter(r => r.queryState === _activeState);
   if (_activeCluster) rows = rows.filter(r => r._cluster   === _activeCluster);
+  if (_activeState)   rows = rows.filter(r => r.queryState === _activeState);
   _rows = rows;
   qeUpdateCounts();
   qeRenderTable();
 }
 
 function qeUpdateCounts() {
-  const byState   = {};
+  /* 클러스터 탭 카운트: 전체 행 기준 */
   const byCluster = {};
   _allRows.forEach(r => {
-    byState[r.queryState] = (byState[r.queryState] || 0) + 1;
     byCluster[r._cluster] = (byCluster[r._cluster] || 0) + 1;
   });
-  $('cnt-all').textContent       = _allRows.length;
-  $('cnt-finished').textContent  = byState['FINISHED']  || 0;
-  $('cnt-running').textContent   = byState['RUNNING']   || 0;
-  $('cnt-exception').textContent = byState['EXCEPTION'] || 0;
 
   document.querySelectorAll('#qe-cluster-tabs .stab').forEach(tab => {
     const cl = tab.dataset.cluster;
-    const n  = cl ? (byCluster[cl] || 0) : _allRows.length;
-    tab.querySelector('.cnt').textContent = n;
+    tab.querySelector('.cnt').textContent = cl ? (byCluster[cl] || 0) : _allRows.length;
   });
+
+  /* 상태 탭 카운트: 선택된 클러스터 기준 */
+  const clusterBase = _activeCluster
+    ? _allRows.filter(r => r._cluster === _activeCluster)
+    : _allRows;
+
+  const byState = {};
+  clusterBase.forEach(r => {
+    byState[r.queryState] = (byState[r.queryState] || 0) + 1;
+  });
+
+  $('cnt-all').textContent       = clusterBase.length;
+  $('cnt-finished').textContent  = byState['FINISHED']  || 0;
+  $('cnt-running').textContent   = byState['RUNNING']   || 0;
+  $('cnt-exception').textContent = byState['EXCEPTION'] || 0;
 }
 
 /* 테이블 렌더 */
@@ -219,10 +232,14 @@ function qeRenderTable() {
     return _sortAsc ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
   });
 
+  const totalPages = Math.ceil(sorted.length / _pageSize) || 1;
+  if (_page > totalPages) _page = totalPages;
+  const pageRows = sorted.slice((_page - 1) * _pageSize, _page * _pageSize);
+
   const tbody = $('qe-tbody');
   tbody.innerHTML = '';
 
-  sorted.forEach(q => {
+  pageRows.forEach(q => {
     const expanded     = _openRows.has(q.queryId);
     const stateCls     = _STATE_BADGE_CLS[q.queryState] || '';
     const clBadgeColor = _clFg(q._cluster);
@@ -242,24 +259,56 @@ function qeRenderTable() {
       <td><span style="background:${clBadgeBg};color:${clBadgeColor};padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700">${esc(q._cluster)}</span></td>
       <td class="mono">${esc(q.queryId)}</td>
       <td style="font-weight:500">${esc(q.user || '')}</td>
-      <td style="color:#8892a4">${esc((q.attributes && q.attributes.connected_user) || '')}</td>
+      <td>${esc((q.attributes && q.attributes.connected_user) || '')}</td>
       <td><span class="badge ${stateCls}">${esc(q.queryState || '')}</span></td>
-      <td class="stmt-cell" title="${esc(q.statement || '')}">${esc(q.statement || '')}</td>
+      <td><div class="stmt-cell">${esc(q.statement || '')}</div></td>
       <td>${dur}</td>
       <td>${q.rowsProduced != null ? q.rowsProduced.toLocaleString() : '—'}</td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.startTime || '')}</td>
-      <td style="white-space:nowrap;color:#5a6278">${esc(q.endTime || '')}</td>
-      <td>${statusHtml}</td>
+      <td style="white-space:nowrap">${esc(q.startTime || '')}</td>
+      <td style="white-space:nowrap">${esc(q.endTime || '')}</td>
+      <td><div class="status-cell">${statusHtml}</div></td>
       <td><button class="btn-dl-profile" title="프로파일 다운로드" onclick="qeDownloadProfile('${esc(q._cluster)}','${esc(q.queryId)}')">⬇</button></td>`;
     tbody.appendChild(tr);
 
     if (expanded) {
       const exp = document.createElement('tr');
       exp.className = 'expand-row';
-      exp.innerHTML = `<td colspan="13"><div class="expand-content">${esc(q.statement || '')}</div></td>`;
+      const expandStatus = !isOk
+        ? `<div class="expand-status"><strong>queryStatus:</strong> ${esc(statusVal)}</div>`
+        : '';
+      exp.innerHTML = `<td colspan="13"><div class="expand-content">${esc(q.statement || '')}</div>${expandStatus}</td>`;
       tbody.appendChild(exp);
     }
   });
+
+  qeRenderPagination(totalPages);
+}
+
+/* 페이지네이션 렌더 */
+function qeRenderPagination(totalPages) {
+  const pg = $('qe-pagination');
+  if (totalPages <= 1) { pg.style.display = 'none'; return; }
+  pg.style.display = '';
+
+  const start = Math.max(1, _page - 2);
+  const end   = Math.min(totalPages, _page + 2);
+
+  let html = `<span class="pg-info">${_page} / ${totalPages} 페이지 (총 ${_rows.length}건)</span>`;
+  html += `<button class="btn-pg" onclick="qeGoPage(1)" ${_page === 1 ? 'disabled' : ''}>«</button>`;
+  html += `<button class="btn-pg" onclick="qeGoPage(${_page - 1})" ${_page === 1 ? 'disabled' : ''}>‹</button>`;
+  for (let i = start; i <= end; i++) {
+    html += `<button class="btn-pg${i === _page ? ' active' : ''}" onclick="qeGoPage(${i})">${i}</button>`;
+  }
+  html += `<button class="btn-pg" onclick="qeGoPage(${_page + 1})" ${_page === totalPages ? 'disabled' : ''}>›</button>`;
+  html += `<button class="btn-pg" onclick="qeGoPage(${totalPages})" ${_page === totalPages ? 'disabled' : ''}>»</button>`;
+
+  pg.innerHTML = html;
+}
+
+function qeGoPage(n) {
+  const totalPages = Math.ceil(_rows.length / _pageSize) || 1;
+  _page = Math.max(1, Math.min(n, totalPages));
+  qeRenderTable();
 }
 
 function qeToggleRow(queryId) {
@@ -285,6 +334,7 @@ function qeSelectState(el) {
   document.querySelectorAll('#qe-state-tabs .stab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   _activeState = el.dataset.state;
+  _page = 1;
   qeApplyFilters();
 }
 
@@ -293,6 +343,11 @@ function qeSelectCluster(el) {
   document.querySelectorAll('#qe-cluster-tabs .stab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   _activeCluster = el.dataset.cluster;
+  /* 클러스터 전환 시 상태 탭은 항상 '전체'로 리셋 */
+  _activeState = '';
+  document.querySelectorAll('#qe-state-tabs .stab').forEach(t => t.classList.remove('active'));
+  document.querySelector('#qe-state-tabs [data-state=""]').classList.add('active');
+  _page = 1;
   qeApplyFilters();
 }
 
@@ -332,8 +387,10 @@ function qeReset() {
   if (_es) { _es.close(); _es = null; }
   _allRows = [];
   _rows    = [];
+  _page    = 1;
   _openRows.clear();
   $('qe-tbody').innerHTML = '';
+  $('qe-pagination').style.display = 'none';
   $('qe-summary').style.display = 'none';
   $('qe-progress').classList.remove('show');
   $('qe-search-btn').disabled = false;

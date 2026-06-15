@@ -65,19 +65,19 @@
   <span id="qe-summary-text"></span>
 </div>
 
-<!-- 상태 탭 -->
+<!-- 클러스터 탭 (1depth) -->
+<div class="tab-bar" id="qe-cluster-tabs">
+  <div class="stab active" data-cluster="" onclick="qeSelectCluster(this)">전체 <span class="cnt">0</span></div>
+  <!-- JS로 채움 -->
+</div>
+
+<!-- 상태 탭 (2depth) -->
 <div class="tab-bar" id="qe-state-tabs">
   <div class="stab active" data-state="" onclick="qeSelectState(this)">전체 <span class="cnt" id="cnt-all">0</span></div>
   <div class="stab" data-state="FINISHED" onclick="qeSelectState(this)">FINISHED <span class="cnt" id="cnt-finished">0</span></div>
   <div class="stab" data-state="RUNNING" onclick="qeSelectState(this)">RUNNING <span class="cnt" id="cnt-running">0</span></div>
   <div class="stab" data-state="EXCEPTION" onclick="qeSelectState(this)">EXCEPTION <span class="cnt" id="cnt-exception">0</span></div>
   <div style="flex:1"></div>
-</div>
-
-<!-- 클러스터 탭 -->
-<div class="tab-bar" id="qe-cluster-tabs">
-  <div class="stab active" data-cluster="" onclick="qeSelectCluster(this)">전체 <span class="cnt">0</span></div>
-  <!-- JS로 채움 -->
 </div>
 
 <div class="tbl-wrap">
@@ -102,3 +102,5 @@
     <tbody id="qe-tbody"></tbody>
   </table>
 </div>
+
+<div id="qe-pagination" style="display:none"></div>

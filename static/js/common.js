@@ -25,7 +25,8 @@ function esc(s) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /* ── 클러스터 색상 (qmLoadSidebar에서 채워짐, QM·QE 공유) ── */

@@ -1,85 +1,203 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, 'Segoe UI', sans-serif;
-  background: #f4f6fb; color: #1a1d2e; font-size: 13px;
-  display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════ */
+:root {
+  /* 색상 */
+  --c-bg:       #F7F8FA;
+  --c-surface:  #FFFFFF;
+  --c-border:   #E4E7EC;
+  --c-text:     #000000;
+  --c-muted:    #6B7280;
+  --c-accent:   #2563EB;
+  --c-accent-bg:#EFF6FF;
+
+  /* 상태 배지 */
+  --c-finished-bg:   #ECFDF5;  --c-finished-text: #065F46;
+  --c-running-bg:    #EFF6FF;  --c-running-text:  #1D4ED8;
+  --c-exception-bg:  #FEF2F2;  --c-exception-text:#B91C1C;
+  --c-queued-bg:     #FFFBEB;  --c-queued-text:   #92400E;
+
+  /* 타이포그래피 */
+  --font-base:   13px;
+  --font-sm:     11px;
+  --font-header: 14px;
+  --fw-normal:   400;
+  --fw-semi:     600;
+
+  /* 간격 */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+
+  /* 컴포넌트 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --btn-h-sm:  28px;
+  --btn-h-md:  32px;
+  --input-h:   32px;
 }
 
-/* ── 앱 헤더 ── */
+/* ══════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Malgun Gothic', '맑은 고딕', 'Segoe UI', sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: var(--font-base);
+  font-weight: var(--fw-normal);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════
+   APP HEADER
+══════════════════════════════════════════════ */
 #app-header {
-  background: #fff; border-bottom: 1px solid #e5e9f2;
-  padding: 0 24px; display: flex; align-items: stretch; height: 48px;
-  box-shadow: 0 1px 4px rgba(60,80,150,.06); flex-shrink: 0;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 var(--sp-5);
+  display: flex;
+  align-items: stretch;
+  height: 48px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+  flex-shrink: 0;
 }
+
 .brand {
-  display: flex; align-items: center; gap: 10px;
-  padding-right: 24px; border-right: 1px solid #e5e9f2; margin-right: 8px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-right: var(--sp-5);
+  border-right: 1px solid var(--c-border);
+  margin-right: var(--sp-2);
 }
+
 .brand .logo {
-  width: 26px; height: 26px;
-  background: linear-gradient(135deg,#4361ee,#7b9ef7);
-  border-radius: 7px; display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 900; color: #fff;
-  box-shadow: 0 2px 8px rgba(67,97,238,.35);
+  width: 26px;
+  height: 26px;
+  background: var(--c-accent);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-sm);
+  font-weight: 900; /* 로고 예외 */
+  color: var(--c-surface);
 }
-.brand span { font-size: 14px; font-weight: 700; color: #1a1d2e; }
+
+.brand span {
+  font-size: var(--font-header);
+  font-weight: var(--fw-semi);
+  color: var(--c-text);
+}
+
+/* ── 탭 ── */
 .app-tab {
-  display: flex; align-items: center; gap: 8px;
-  padding: 0 20px; height: 100%; cursor: pointer; color: #8892a4;
-  font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent;
-  transition: color .15s; user-select: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-4);
+  height: 100%;
+  cursor: pointer;
+  color: var(--c-muted);
+  font-size: var(--font-base);
+  font-weight: var(--fw-normal);
+  border-bottom: 2px solid transparent;
+  transition: color .15s;
+  user-select: none;
 }
-.app-tab:hover { color: #4361ee; }
-.app-tab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
+
+.app-tab:hover { color: var(--c-accent); }
+
+.app-tab.active {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+  font-weight: var(--fw-semi);
+}
 
 /* ── 탭 콘텐츠 ── */
 .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
 .tab-content.active { display: flex; }
 
-/* ── 공통 버튼 ── */
-.btn { padding: 6px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; height: 32px; transition: all .15s; }
-.btn-primary { background: #4361ee; color: #fff; box-shadow: 0 2px 8px rgba(67,97,238,.3); }
-.btn-primary:hover { background: #3451d1; }
-.btn-secondary { background: #f0f3ff; color: #4361ee; }
-.btn-secondary:hover { background: #e0e6ff; }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
+/* ══════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════ */
+.btn {
+  padding: 0 var(--sp-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-base);
+  font-weight: var(--fw-semi);
+  height: var(--btn-h-md);
+  font-family: inherit;
+  transition: all .15s;
+}
 
-/* ── 공통 배지 ── */
-.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-.badge-finished  { background: #e6f4ef; color: #1a7a4a; }
-.badge-running   { background: #e8eeff; color: #3451d1; }
-.badge-exception { background: #fde8e8; color: #c0392b; }
-.badge-queued    { background: #fff3e0; color: #e67e22; }
+.btn-primary {
+  background: var(--c-accent);
+  color: var(--c-surface);
+  border-color: var(--c-accent);
+}
 
-/* ── 공통 탭 바 ── */
-.tab-bar {
-  background: #fff; border-bottom: 1px solid #e5e9f2;
-  padding: 0 24px; display: flex; overflow-x: auto; flex-shrink: 0;
-}
-.stab {
-  padding: 9px 16px; cursor: pointer; color: #8892a4; font-size: 12px; font-weight: 500;
-  border-bottom: 2px solid transparent; white-space: nowrap; transition: color .15s;
-}
-.stab:hover { color: #4361ee; }
-.stab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
-.stab .cnt {
-  margin-left: 5px; background: #f0f3ff; color: #8892a4;
-  font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600;
-}
-.stab.active .cnt { background: #dde6ff; color: #4361ee; }
+.btn-primary:hover { opacity: .88; }
 
-/* ── 공통 테이블 ── */
-.tbl-wrap { overflow: auto; flex: 1; }
-table { width: 100%; border-collapse: collapse; }
-thead { position: sticky; top: 0; background: #f8faff; z-index: 1; }
-th {
-  padding: 6px 10px; text-align: left; font-size: 11px; color: #8892a4;
-  text-transform: uppercase; letter-spacing: .4px; font-weight: 700;
-  border-bottom: 1.5px solid #e5e9f2;
+.btn-secondary {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+  border-color: var(--c-border);
 }
-td { padding: 6px 10px; border-bottom: 1px solid #f0f3f9; font-size: 12px; vertical-align: middle; background: #fff; }
-tr:hover td { background: #f8faff; }
-.mono { font-size: 11px; color: #5a6278; }
-.stmt-cell { max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #8892a4; }
-.sortable { cursor: pointer; }
-.sortable:hover { color: #4361ee; }
+
+.btn-secondary:hover { border-color: var(--c-accent); }
+
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════
+   BADGES
+══════════════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: 20px;
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+}
+
+.badge-finished  { background: var(--c-finished-bg);  color: var(--c-finished-text); }
+.badge-running   { background: var(--c-running-bg);   color: var(--c-running-text); }
+.badge-exception { background: var(--c-exception-bg); color: var(--c-exception-text); }
+.badge-queued    { background: var(--c-queued-bg);    color: var(--c-queued-text); }
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: var(--sp-5);
+  right: var(--sp-5);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-finished-text);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  box-shadow: 0 var(--sp-1) var(--sp-4) rgba(0, 0, 0, .1);
+  display: none;
+  z-index: 9999;
+}
+
+#toast.show { display: block; }
+
+#toast.err {
+  border-color: var(--c-exception-bg);
+  color: var(--c-exception-text);
+}

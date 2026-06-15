@@ -154,7 +154,7 @@ function qeSearch() {
         qeApplyFilters();
       }
     } else if (ev.type === 'done') {
-      _allRows = ev.queries || [];
+      if (ev.queries && ev.queries.length > 0) _allRows = ev.queries;
       qeApplyFilters();
       qeFinish(ev);
     }

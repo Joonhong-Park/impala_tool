@@ -67,7 +67,7 @@ def resolve_time_range(
     - from_time만: from 기준 hours 이후를 to로
     - 둘 다 없음: 현재 시각 기준 최근 hours
     """
-    span = hours if hours else 24
+    span = hours if hours is not None else 24
     if from_time and to_time:
         return from_time, to_time
     if from_time:
@@ -122,6 +122,14 @@ def _cm_url(cluster: ClusterConfig) -> str:
         f"/api/{cluster.cm.api_version}"
         f"/clusters/{cluster.cm.cluster_name}/services/impala/impalaQueries"
     )
+
+
+async def fetch_query_profile(cluster: ClusterConfig, query_id: str) -> httpx.Response:
+    cfg = _config
+    url = _cm_url(cluster) + f"/{query_id}/queryDetails"
+    auth = (cfg.cm.username, cfg.cm.password)
+    async with httpx.AsyncClient(verify=False, auth=auth, timeout=cfg.cm.request_timeout) as client:
+        return await client.get(url)
 
 
 async def _fetch_cluster(
@@ -242,7 +250,8 @@ async def _stream_chunked(
     from_dt = _parse_dt(params["from"]) if params.get("from") else now - timedelta(hours=24)
     to_dt   = _parse_dt(params["to"])   if params.get("to")   else now
 
-    total_chunks = math.ceil((to_dt - from_dt).total_seconds() / 3600 / _config.explorer.chunk_hours)
+    chunk_delta = timedelta(hours=_config.explorer.chunk_hours)
+    total_chunks = math.ceil((to_dt - from_dt) / chunk_delta)
 
     collected: list[dict] = []
     seen_ids: set[str] = set()

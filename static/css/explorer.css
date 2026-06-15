@@ -1,68 +1,345 @@
+/* ══════════════════════════════════════════════
+   QUERY EXPLORER
+══════════════════════════════════════════════ */
+
+/* ── 필터 영역 ── */
 .filters {
-  background: #fff; border-bottom: 1px solid #e5e9f2;
-  padding: 12px 24px; display: flex; flex-direction: column; gap: 10px;
-  flex-shrink: 0; box-shadow: 0 1px 3px rgba(60,80,150,.04);
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: var(--sp-3) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  flex-shrink: 0;
 }
-.filter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-.fg { display: flex; flex-direction: column; gap: 4px; }
-.fg label { font-size: 11px; color: #8892a4; font-weight: 600; letter-spacing: .3px; }
-.fg input, .fg select {
-  background: #f8faff; border: 1.5px solid #e2e8f4; color: #1a1d2e;
-  padding: 6px 10px; border-radius: 6px; font-size: 12px; height: 32px; transition: border-color .15s;
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: flex-end;
 }
-.fg input:focus, .fg select:focus { outline: none; border-color: #4361ee; background: #fff; box-shadow: 0 0 0 3px rgba(67,97,238,.1); }
-.fg input { min-width: 150px; }
-.fg select { min-width: 110px; }
-.presets { display: flex; gap: 4px; }
+
+.fg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.fg label {
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  color: var(--c-muted);
+  letter-spacing: .3px;
+}
+
+.fg input,
+.fg select {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  height: var(--input-h);
+  font-family: inherit;
+  transition: border-color .15s;
+  min-width: 110px;
+}
+
+.fg input:focus,
+.fg select:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  background: var(--c-surface);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+/* 개별 입력 최소 너비 (HTML 인라인 style 흡수) */
+#qe-user         { min-width: 140px !important; }
+#qe-from, #qe-to { min-width: 172px !important; }
+
+/* ── 프리셋 버튼 ── */
+.presets { display: flex; gap: var(--sp-1); }
+
 .preset-btn {
-  padding: 5px 10px; border: 1.5px solid #e2e8f4; border-radius: 6px;
-  background: #f8faff; color: #8892a4; font-size: 11px; cursor: pointer; font-weight: 600; transition: all .15s;
+  padding: 0 var(--sp-2);
+  height: var(--btn-h-sm);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
 }
-.preset-btn:hover { border-color: #4361ee; color: #4361ee; background: #f0f3ff; }
-.preset-btn.active { background: #4361ee; color: #fff; border-color: #4361ee; }
-.cond-area { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.cond-row { display: flex; gap: 4px; align-items: center; }
+
+.preset-btn:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+  background: var(--c-accent-bg);
+}
+
+.preset-btn.active {
+  background: var(--c-accent);
+  color: var(--c-surface);
+  border-color: var(--c-accent);
+}
+
+/* ── 조건 행 ── */
+.cond-area { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+
+.cond-row { display: flex; gap: var(--sp-1); align-items: center; }
+
 .cond-val {
-  background: #f8faff; border: 1.5px solid #e2e8f4; color: #1a1d2e;
-  padding: 6px 10px; border-radius: 6px; font-size: 12px; height: 32px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  height: var(--input-h);
+  font-family: inherit;
+  min-width: 140px;
 }
-.cond-val:focus { outline: none; border-color: #4361ee; }
+
+.cond-val:focus { outline: none; border-color: var(--c-accent); }
+
 .btn-add-cond {
-  background: none; border: 1.5px dashed #4361ee; color: #4361ee;
-  cursor: pointer; font-size: 11px; padding: 1px 10px; border-radius: 6px; height: 24px; font-weight: 600;
+  background: none;
+  border: 1px dashed var(--c-accent);
+  color: var(--c-accent);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-md);
+  height: var(--btn-h-sm);
+  font-family: inherit;
+  transition: background .15s;
 }
-.btn-add-cond:hover { background: #f0f3ff; }
+
+.btn-add-cond:hover { background: var(--c-accent-bg); }
+
 .cond-remove {
-  background: none; border: 1.5px solid #e2e8f4; color: #b0b8cc;
-  cursor: pointer; font-size: 14px; padding: 0 7px; border-radius: 6px; height: 32px;
+  background: none;
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  cursor: pointer;
+  font-size: var(--font-base);
+  line-height: 1;
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-md);
+  height: var(--input-h);
+  font-family: inherit;
+  transition: all .15s;
 }
-.cond-remove:hover { color: #c0392b; border-color: #fca5a5; }
+
+.cond-remove:hover {
+  color: var(--c-exception-text);
+  border-color: var(--c-exception-bg);
+}
+
+/* 중지 버튼 (HTML 인라인 색상 흡수) */
+#qe-stop-btn {
+  background: var(--c-exception-bg) !important;
+  color: var(--c-exception-text) !important;
+  border-color: var(--c-exception-bg) !important;
+}
+
+/* ── 진행 바 ── */
 #qe-progress {
-  padding: 8px 24px; background: #fffbeb; border-bottom: 1px solid #fde68a;
-  color: #92400e; font-size: 12px; display: none;
+  padding: var(--sp-2) var(--sp-5);
+  background: var(--c-queued-bg);
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-queued-text);
+  font-size: var(--font-sm);
+  flex-shrink: 0;
+  display: none;
 }
+
 #qe-progress.show { display: block; }
-.progress-bar-outer { background: #fde68a; border-radius: 4px; height: 4px; margin-top: 4px; }
-.progress-bar-inner { background: #f59e0b; height: 100%; border-radius: 4px; transition: width .3s; }
 
+.progress-bar-outer {
+  background: var(--c-border);
+  border-radius: var(--radius-sm);
+  height: 4px;
+  margin-top: var(--sp-1);
+}
+
+.progress-bar-inner {
+  background: var(--c-accent);
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width .3s;
+}
+
+/* ── 요약 바 ── */
 #qe-summary {
-  padding: 6px 24px; background: #fff; border-bottom: 1px solid #e5e9f2;
-  font-size: 11px; color: #8892a4; display: flex; align-items: center; gap: 16px;
+  padding: var(--sp-1) var(--sp-5);
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  font-size: var(--font-sm);
+  color: var(--c-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
 }
 
-.btn-dl-profile {
-  background: none; border: 1.5px solid #e2e8f4; color: #8892a4;
-  cursor: pointer; font-size: 14px; padding: 2px 7px; border-radius: 4px;
-  line-height: 1; transition: all .15s;
+/* ── 상태·클러스터 탭 바 ── */
+.tab-bar {
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 var(--sp-5);
+  display: flex;
+  overflow-x: auto;
+  flex-shrink: 0;
 }
-.btn-dl-profile:hover { border-color: #4361ee; color: #4361ee; background: #f0f3ff; }
-.expand-btn { cursor: pointer; color: #b0b8cc; user-select: none; }
-tr.expanded .expand-btn { color: #4361ee; }
+
+.stab {
+  padding: var(--sp-2) var(--sp-4);
+  cursor: pointer;
+  color: var(--c-muted);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-normal);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .15s;
+}
+
+.stab:hover { color: var(--c-accent); }
+
+.stab.active {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+  font-weight: var(--fw-semi);
+}
+
+.stab .cnt {
+  margin-left: var(--sp-1);
+  background: var(--c-bg);
+  color: var(--c-muted);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-sm);
+}
+
+.stab.active .cnt {
+  background: var(--c-accent-bg);
+  color: var(--c-accent);
+}
+
+/* ══════════════════════════════════════════════
+   EXPLORER TABLE
+══════════════════════════════════════════════ */
+.tbl-wrap { overflow: auto; flex: 1; }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead { position: sticky; top: 0; background: var(--c-bg); z-index: 1; }
+
+th {
+  padding: var(--sp-1) var(--sp-2);
+  text-align: left;
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+td {
+  padding: var(--sp-1) var(--sp-2);
+  border-bottom: 1px solid var(--c-border);
+  font-size: var(--font-base);
+  vertical-align: middle;
+  background: var(--c-surface);
+}
+
+tr:hover td { background: var(--c-accent-bg); }
+
+.mono {
+  font-family: inherit;
+  font-size: var(--font-sm);
+  font-weight: var(--fw-normal);
+  color: var(--c-muted);
+}
+
+.stmt-cell {
+  max-width: 360px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--c-muted);
+}
+
+.sortable { cursor: pointer; }
+.sortable:hover { color: var(--c-accent); }
+
+/* ── 행 확장 ── */
+.expand-btn {
+  cursor: pointer;
+  color: var(--c-muted);
+  user-select: none;
+  font-size: var(--font-sm);
+}
+
+tr.expanded .expand-btn { color: var(--c-accent); }
+
 .expand-row td { padding: 0; }
+
 .expand-content {
-  padding: 10px 20px; background: #f8faff; border-bottom: 1px solid #e5e9f2;
-  font-family: monospace; font-size: 11px; white-space: pre-wrap; word-break: break-all;
-  color: #5a6278;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--c-bg);
+  border-bottom: 1px solid var(--c-border);
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: var(--font-sm);
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--c-muted);
 }
-.ok-block  { background: #e6f4ef; color: #1a7a4a; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
-.err-block { background: #fde8e8; color: #c0392b; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+
+/* ── 상태 블록 ── */
+.ok-block {
+  background: var(--c-finished-bg);
+  color: var(--c-finished-text);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+}
+
+.err-block {
+  background: var(--c-exception-bg);
+  color: var(--c-exception-text);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+}
+
+/* ── 프로파일 다운로드 버튼 ── */
+.btn-dl-profile {
+  background: none;
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  cursor: pointer;
+  font-size: var(--font-base);
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-sm);
+  height: var(--btn-h-sm);
+  line-height: 1;
+  font-family: inherit;
+  transition: all .15s;
+}
+
+.btn-dl-profile:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+  background: var(--c-accent-bg);
+}

@@ -5,7 +5,6 @@ import logging
 from dataclasses import dataclass
 from typing import Optional
 
-import httpx
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
@@ -117,16 +116,8 @@ async def get_profile(cluster_id: str, query_id: str):
     if not cluster:
         return JSONResponse({"error": "cluster not found"}, status_code=404)
 
-    url = (
-        f"https://{cluster.cm.host}:{cluster.cm.port}"
-        f"/api/{cluster.cm.api_version}"
-        f"/clusters/{cluster.cm.cluster_name}/services/impala"
-        f"/impalaQueries/{query_id}/queryDetails"
-    )
-
     try:
-        async with httpx.AsyncClient(verify=False, timeout=_config.cm.request_timeout) as client:
-            resp = await client.get(url, auth=(_config.cm.username, _config.cm.password))
+        resp = await cm_client.fetch_query_profile(cluster, query_id)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 

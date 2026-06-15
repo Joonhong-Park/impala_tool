@@ -47,8 +47,8 @@ Impala 운영 편의를 위한 **사내 전용 통합 웹 UI**로, 두 가지 �
 ### 2-3. 인증 / TLS
 
 - 인증 없음 (내부망 직접 접근)
-- TLS: `httpx.AsyncClient(verify=config.app.ca_bundle)`
-  - `ca_bundle` 경로: `/etc/pki/tls/certs/ca-bundle.crt` (config.yaml에서 관리)
+- TLS: `httpx.AsyncClient(verify=False)` — 내부망 자체 서명 인증서 대응으로 SSL 검증 비활성화
+  - `config.yaml`의 `ca_bundle` 필드는 설정에 존재하나 현재 검증에 사용되지 않음
 
 ---
 
@@ -117,6 +117,7 @@ explorer:
 
 clusters:
   - id: cluster1                 # 문자열 ID (JS/Python 모두 str 기준)
+    enabled: true                # false 설정 후 서버 재시작 시 해당 클러스터 숨김
     color: "#4f8ef7"             # 클러스터 식별 색상 (hex)
     cm:
       host: cm1.internal
@@ -295,8 +296,8 @@ https://{cluster.cm.host}:{cluster.cm.port}
   /services/impala/impalaQueries
 ```
 
-- 인증: Basic Auth (`cm.username`, `cm.password`)
-- SSL 검증: `_verify` (전역, `main.py`에서 `config.app.ca_bundle`로 초기화)
+- 인증: Basic Auth (`cm.username`, `cm.password`) — `config.yaml`의 `cm.username` / `cm.password` 사용
+- SSL 검증: `verify=False` (내부망 자체 서명 인증서 대응)
 
 ### 검색 모드 분기
 
@@ -443,9 +444,14 @@ parseFloat(progressStr?.match(/\((\d+(?:\.\d+)?)%\)/)?.[1]) || 0
 - **역할**: 사내 Windows PC에서 SSH 2-hop 터널 연결 후 브라우저 자동 오픈
 - **터널 경로**: `PC → 터널 서버 → node1(FastAPI 서버)`, localhost:9191 포워딩
 - **GUI**: tkinter (다크 테마), 비밀번호 저장 (Fernet, 기기 고유 키 = `COMPUTERNAME + USERNAME` SHA-256)
-- **빌드**: `pyinstaller --onefile --noconsole --name ImpalaTool launcher.py`
-- **설정 파일**: `launcher_config.yaml` (빌드된 .exe와 같은 디렉터리에 위치)
-- **설정 파일 탐색 순서**: `sys.executable` 부모 → `__file__` 부모 → cwd
+- **빌드**: `pyinstaller --onefile --noconsole --name ImpalaTool --add-data "launcher_config.yaml;." launcher.py`
+  - `launcher_config.yaml`이 번들(.exe) 안에 포함됨
+- **설정 파일 탐색 순서** (앞쪽이 우선):
+  1. `sys.executable` 부모 (exe 옆 — 이 위치에 두면 번들 설정을 override)
+  2. `sys._MEIPASS` (PyInstaller 번들 내부)
+  3. `__file__` 부모 (개발 실행)
+  4. cwd
+- 설정 파일을 찾지 못하면 tkinter 에러 다이얼로그 표시 후 종료
 
 ### launcher_config.yaml 구조
 
@@ -507,6 +513,7 @@ app:
 | query_state 필터 | Explorer: 서버(Python)와 클라이언트(JS 탭) 양쪽 모두 적용 |
 | QE 탭 초기화 | 새 검색 시작 시 상태·클러스터 탭을 "전체"로 자동 리셋 |
 | QE 초기화 버튼 | 폼과 함께 결과 테이블·데이터·SSE 연결 전부 초기화 |
+| 클러스터 비활성화 | `config.yaml` `enabled: false` → `load_config()` 에서 해당 클러스터 제외, 서버 재시작 필요 |
 
 ---
 

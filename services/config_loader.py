@@ -87,6 +87,6 @@ def _parse_cluster(raw: dict) -> ClusterConfig:
         id=raw["id"],
         color=raw["color"],
         cm=CmConfig(**raw["cm"]),
-        ops_coordinators=[CoordinatorConfig(**c) for c in coords["ops"]],
-        user_coordinators=[CoordinatorConfig(**c) for c in coords["user"]],
+        ops_coordinators=[CoordinatorConfig(**c) for c in coords.get("ops", [])],
+        user_coordinators=[CoordinatorConfig(**c) for c in coords.get("user", [])],
     )

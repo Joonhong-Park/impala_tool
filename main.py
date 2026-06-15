@@ -27,9 +27,9 @@ TEMPLATES_DIR   = BASE_DIR / "templates"
 config = load_config(CONFIG_PATH)
 
 # 서비스/라우터 의존성 초기화
-impala_client = ImpalaClient(ca_bundle=config.app.ca_bundle)
+impala_client = ImpalaClient()
 monitor.init(impala_client, config)
-cm_client.init(config, verify=config.app.ca_bundle)
+cm_client.init(config)
 explorer.init(config)
 
 app = FastAPI(title="Impala Tool")

@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-from typing import Union
-
 import httpx
 
 
 class ImpalaClient:
     """impalad HTTP endpoint 비동기 호출 클라이언트."""
-
-    def __init__(self, ca_bundle: Union[str, bool]) -> None:
-        self._verify = ca_bundle
 
     def _url(self, host: str, port: int, path: str) -> str:
         return f"https://{host}:{port}{path}"

@@ -118,15 +118,10 @@ async def get_profile(cluster_id: str, query_id: str):
 
     try:
         resp = await cm_client.fetch_query_profile(cluster, query_id)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
-
-    if resp.status_code == 404:
-        return JSONResponse({"error": "프로파일을 찾을 수 없습니다. 보관 기간이 지났거나 아직 생성되지 않은 프로파일입니다."}, status_code=404)
-
-    try:
+        if resp.status_code == 404:
+            return JSONResponse({"error": "프로파일을 찾을 수 없습니다. 보관 기간이 지났거나 아직 생성되지 않은 프로파일입니다."}, status_code=404)
         resp.raise_for_status()
-        profile_text = resp.json().get("profile", resp.text)
+        profile_text = resp.text
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 

@@ -386,7 +386,7 @@ function qeReset() {
   $('qe-conds').innerHTML = '';
   qeAddCondRow();
   $('qe-cluster-select').value = '';
-  $('qe-qtype').value = 'QUERY';
+  $('qe-qtype').value = '';
   $('qe-from').value = '';
   $('qe-to').value   = '';
   qeSetPreset(1);

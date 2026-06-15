@@ -6,7 +6,7 @@ import logging
 import math
 import re
 from datetime import datetime, timedelta, timezone
-from typing import AsyncGenerator, Optional, Union
+from typing import AsyncGenerator, Optional
 
 import httpx
 
@@ -15,13 +15,11 @@ from services.config_loader import ClusterConfig, CmGlobalConfig, Config
 logger = logging.getLogger(__name__)
 
 _config: Optional[Config] = None
-_verify: Union[str, bool] = False
 
 
-def init(config: Config, verify: Union[str, bool] = False) -> None:
-    global _config, _verify
+def init(config: Config) -> None:
+    global _config
     _config = config
-    _verify = verify
 
 
 # ── 순수 함수 ──────────────────────────────────────────────────────
@@ -127,10 +125,10 @@ def _cm_url(cluster: ClusterConfig) -> str:
 
 async def fetch_query_profile(cluster: ClusterConfig, query_id: str) -> httpx.Response:
     cfg = _config
-    url = _cm_url(cluster) + f"/{query_id}/queryDetails"
+    url = f"https://{cluster.cm.host}:{cluster.cm.port}/cmf/impala/downloadProfile"
     auth = (cfg.cm.username, cfg.cm.password)
     async with httpx.AsyncClient(verify=False, auth=auth, timeout=cfg.cm.request_timeout) as client:
-        return await client.get(url)
+        return await client.get(url, params={"queryId": query_id, "format": "PRETTY_PRINT"})
 
 
 def _safe_json(resp: httpx.Response) -> dict:
@@ -270,7 +268,7 @@ async def _stream_chunked(
     cursor_to = to_dt
     chunk_no = 0
     while cursor_to > from_dt:
-        chunk_from = max(from_dt, cursor_to - timedelta(hours=_config.explorer.chunk_hours))
+        chunk_from = max(from_dt, cursor_to - chunk_delta)
         chunk_no += 1
         prev_count = len(collected)
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <title>Impala Tool</title>
@@ -15,8 +15,13 @@
     <div class="logo">I</div>
     <span>Impala Tool</span>
   </div>
-  <div class="app-tab active" id="tab-qe" onclick="switchTab('qe')">🔍 Query Explorer</div>
-  <div class="app-tab" id="tab-qm" onclick="switchTab('qm')">📡 Query Monitoring</div>
+  <div class="app-tab active" id="tab-qe" onclick="switchTab('qe')">Query Explorer</div>
+  <div class="app-tab" id="tab-qm" onclick="switchTab('qm')">Query Monitoring</div>
+  <div class="header-spacer"></div>
+  <button id="theme-toggle" onclick="toggleTheme()">
+    <span id="theme-icon">🌙</span>
+    <span id="theme-label">다크 모드</span>
+  </button>
 </div>
 
 <!-- ════════ QUERY EXPLORER ════════ -->

@@ -44,3 +44,12 @@ const _STATE_BADGE_CLS = {
   FINISHED: 'badge-finished', RUNNING: 'badge-running',
   EXCEPTION: 'badge-exception', QUEUED: 'badge-queued',
 };
+
+/* ── 다크모드 토글 ── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  $('theme-icon').textContent  = isDark ? '🌙' : '☀️';
+  $('theme-label').textContent = isDark ? '다크 모드' : '라이트 모드';
+}

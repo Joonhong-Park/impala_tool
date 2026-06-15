@@ -11,6 +11,7 @@
   flex-direction: column;
   gap: var(--sp-2);
   flex-shrink: 0;
+  transition: background .2s;
 }
 
 .filter-row {
@@ -28,31 +29,47 @@
 
 .fg label {
   font-size: var(--font-sm);
-  font-weight: var(--fw-semi);
+  font-weight: var(--fw-bold);
   color: var(--c-muted);
-  letter-spacing: .3px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
 }
 
 .fg input,
 .fg select {
   background: var(--c-bg);
-  border: 1px solid var(--c-border);
+  border: 1.5px solid var(--c-border);
   color: var(--c-text);
   padding: 0 var(--sp-2);
   border-radius: var(--radius-md);
   font-size: var(--font-base);
   height: var(--input-h);
   font-family: inherit;
-  transition: border-color .15s;
+  transition: border-color .15s, box-shadow .15s, background .2s;
   min-width: 110px;
 }
+
+.fg select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%233D5470' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 10px;
+  padding-right: 28px;
+}
+
+[data-theme="dark"] .fg select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A95B8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+}
+
+.fg select option { background: var(--c-surface); color: var(--c-text); }
 
 .fg input:focus,
 .fg select:focus {
   outline: none;
   border-color: var(--c-accent);
   background: var(--c-surface);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+  box-shadow: 0 0 0 3px var(--c-accent-bg);
 }
 
 /* 개별 입력 최소 너비 (HTML 인라인 style 흡수) */
@@ -65,10 +82,10 @@
 .preset-btn {
   padding: 0 var(--sp-2);
   height: var(--btn-h-sm);
-  border: 1px solid var(--c-border);
+  border: 1.5px solid var(--c-border);
   border-radius: var(--radius-md);
-  background: var(--c-surface);
-  color: var(--c-text);
+  background: transparent;
+  color: var(--c-muted);
   font-size: var(--font-sm);
   font-weight: var(--fw-semi);
   cursor: pointer;
@@ -187,16 +204,18 @@
   display: flex;
   align-items: center;
   gap: var(--sp-4);
+  transition: background .2s;
 }
 
 /* ── 상태·클러스터 탭 바 ── */
 .tab-bar {
   background: var(--c-surface);
-  border-bottom: 1px solid var(--c-border);
+  border-bottom: 1.5px solid var(--c-border);
   padding: 0 var(--sp-5);
   display: flex;
   overflow-x: auto;
   flex-shrink: 0;
+  transition: background .2s;
 }
 
 .stab {
@@ -210,27 +229,29 @@
   transition: color .15s;
 }
 
-.stab:hover { color: var(--c-accent); }
+.stab:hover { color: var(--c-text); }
 
 .stab.active {
   color: var(--c-accent);
   border-bottom-color: var(--c-accent);
-  font-weight: var(--fw-semi);
+  font-weight: var(--fw-bold);
 }
 
 .stab .cnt {
   margin-left: var(--sp-1);
   background: var(--c-bg);
   color: var(--c-muted);
-  font-size: var(--font-sm);
-  font-weight: var(--fw-semi);
-  padding: 0 var(--sp-1);
-  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  padding: 0 5px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
 }
 
 .stab.active .cnt {
   background: var(--c-accent-bg);
   color: var(--c-accent);
+  border-color: transparent;
 }
 
 /* ══════════════════════════════════════════════
@@ -246,11 +267,11 @@ th {
   padding: var(--sp-1) var(--sp-2);
   text-align: left;
   font-size: var(--font-sm);
-  font-weight: var(--fw-semi);
+  font-weight: var(--fw-bold);
   color: var(--c-muted);
   text-transform: uppercase;
-  letter-spacing: .4px;
-  border-bottom: 1px solid var(--c-border);
+  letter-spacing: .5px;
+  border-bottom: 1.5px solid var(--c-border);
   white-space: nowrap;
 }
 
@@ -260,9 +281,10 @@ td {
   font-size: var(--font-base);
   vertical-align: middle;
   background: var(--c-surface);
+  transition: background .15s;
 }
 
-tr:hover td { background: var(--c-accent-bg); }
+tr:hover td { background: var(--c-surface2); }
 
 .mono {
   font-family: inherit;
@@ -344,11 +366,12 @@ tr.expanded .expand-btn { color: var(--c-accent); }
 #qe-pagination {
   padding: var(--sp-2) var(--sp-5);
   background: var(--c-surface);
-  border-top: 1px solid var(--c-border);
+  border-top: 1.5px solid var(--c-border);
   display: flex;
   align-items: center;
   gap: var(--sp-1);
   flex-shrink: 0;
+  transition: background .2s;
 }
 
 .pg-info {
@@ -361,12 +384,12 @@ tr.expanded .expand-btn { color: var(--c-accent); }
   padding: 0 var(--sp-2);
   height: var(--btn-h-sm);
   min-width: 28px;
-  border: 1px solid var(--c-border);
+  border: 1.5px solid var(--c-border);
   border-radius: var(--radius-md);
   background: var(--c-surface);
-  color: var(--c-text);
+  color: var(--c-muted);
   font-size: var(--font-sm);
-  font-weight: var(--fw-semi);
+  font-weight: var(--fw-bold);
   cursor: pointer;
   font-family: inherit;
   transition: all .15s;
@@ -375,12 +398,11 @@ tr.expanded .expand-btn { color: var(--c-accent); }
 .btn-pg:hover {
   border-color: var(--c-accent);
   color: var(--c-accent);
-  background: var(--c-accent-bg);
 }
 
 .btn-pg.active {
   background: var(--c-accent);
-  color: var(--c-surface);
+  color: #fff;
   border-color: var(--c-accent);
 }
 

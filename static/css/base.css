@@ -1,28 +1,53 @@
 /* ══════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS — LIGHT
 ══════════════════════════════════════════════ */
-:root {
-  /* 색상 */
-  --c-bg:       #F7F8FA;
+:root,
+[data-theme="light"] {
+  /* 배경 */
+  --c-bg:       #EEF2F7;
   --c-surface:  #FFFFFF;
-  --c-border:   #E4E7EC;
-  --c-text:     #000000;
-  --c-muted:    #6B7280;
-  --c-accent:   #2563EB;
-  --c-accent-bg:#EFF6FF;
+  --c-surface2: #F4F7FB;
+  --c-border:   #D0D9E6;
+  --c-border2:  #A8B8CC;
+
+  /* 텍스트 */
+  --c-text:     #0F1B2D;
+  --c-muted:    #3D5470;
+
+  /* 액센트 */
+  --c-accent:      #1A56DB;
+  --c-accent-bg:   rgba(26,86,219,.08);
+  --c-accent-glow: rgba(26,86,219,.20);
 
   /* 상태 배지 */
-  --c-finished-bg:   #ECFDF5;  --c-finished-text: #065F46;
-  --c-running-bg:    #EFF6FF;  --c-running-text:  #1D4ED8;
-  --c-exception-bg:  #FEF2F2;  --c-exception-text:#B91C1C;
-  --c-queued-bg:     #FFFBEB;  --c-queued-text:   #92400E;
+  --c-finished-bg:    #DCFCE7;  --c-finished-text:  #15803D;
+  --c-running-bg:     #DBEAFE;  --c-running-text:   #1D4ED8;
+  --c-exception-bg:   #FEE2E2;  --c-exception-text: #B91C1C;
+  --c-queued-bg:      #FEF3C7;  --c-queued-text:    #92400E;
+
+  /* 헤더 */
+  --hdr-bg:   #0F1B2D;
+  --hdr-tx:   #FFFFFF;
+  --hdr-tx2:  rgba(255,255,255,.50);
+  --hdr-bd:   rgba(255,255,255,.10);
+  --hdr-on:   #FFFFFF;
+
+  /* 로고 */
+  --logo-bg:  #1A56DB;
+  --logo-tx:  #FFFFFF;
+
+  /* 토글 버튼 */
+  --toggle-bg: rgba(255,255,255,.12);
+  --toggle-tx: rgba(255,255,255,.80);
+  --toggle-bd: rgba(255,255,255,.20);
 
   /* 타이포그래피 */
   --font-base:   13px;
   --font-sm:     11px;
-  --font-header: 14px;
+  --font-header: 15px;
   --fw-normal:   400;
   --fw-semi:     600;
+  --fw-bold:     700;
 
   /* 간격 */
   --sp-1: 4px;
@@ -34,19 +59,55 @@
   /* 컴포넌트 */
   --radius-sm: 4px;
   --radius-md: 6px;
-  --radius-lg: 8px;
+  --radius-lg: 10px;
   --btn-h-sm:  28px;
   --btn-h-md:  32px;
   --input-h:   32px;
 }
 
 /* ══════════════════════════════════════════════
+   DESIGN TOKENS — DARK
+══════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --c-bg:       #0D1525;
+  --c-surface:  #162035;
+  --c-surface2: #1E2D45;
+  --c-border:   #243350;
+  --c-border2:  #2E4268;
+
+  --c-text:     #E2ECF8;
+  --c-muted:    #7A95B8;
+
+  --c-accent:      #4B8AF0;
+  --c-accent-bg:   rgba(75,138,240,.12);
+  --c-accent-glow: rgba(75,138,240,.25);
+
+  --c-finished-bg:    rgba(74,222,128,.12);   --c-finished-text:  #4ADE80;
+  --c-running-bg:     rgba(96,165,250,.12);   --c-running-text:   #60A5FA;
+  --c-exception-bg:   rgba(248,113,113,.12);  --c-exception-text: #F87171;
+  --c-queued-bg:      rgba(251,191,36,.12);   --c-queued-text:    #FBBF24;
+
+  --hdr-bg:   #0A1120;
+  --hdr-tx:   #E2ECF8;
+  --hdr-tx2:  rgba(226,236,248,.45);
+  --hdr-bd:   rgba(255,255,255,.08);
+  --hdr-on:   #4B8AF0;
+
+  --logo-bg:  #4B8AF0;
+  --logo-tx:  #FFFFFF;
+
+  --toggle-bg: rgba(255,255,255,.08);
+  --toggle-tx: rgba(226,236,248,.80);
+  --toggle-bd: rgba(255,255,255,.12);
+}
+
+/* ══════════════════════════════════════════════
    RESET
 ══════════════════════════════════════════════ */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Malgun Gothic', '맑은 고딕', 'Segoe UI', sans-serif;
+  font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
   background: var(--c-bg);
   color: var(--c-text);
   font-size: var(--font-base);
@@ -55,20 +116,21 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background .2s, color .2s;
 }
 
 /* ══════════════════════════════════════════════
    APP HEADER
 ══════════════════════════════════════════════ */
 #app-header {
-  background: var(--c-surface);
-  border-bottom: 1px solid var(--c-border);
+  background: var(--hdr-bg);
+  height: 46px;
   padding: 0 var(--sp-5);
   display: flex;
   align-items: stretch;
-  height: 48px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
   flex-shrink: 0;
+  transition: background .2s;
 }
 
 .brand {
@@ -76,51 +138,81 @@ body {
   align-items: center;
   gap: var(--sp-2);
   padding-right: var(--sp-5);
-  border-right: 1px solid var(--c-border);
+  border-right: 1px solid var(--hdr-bd);
   margin-right: var(--sp-2);
 }
 
 .brand .logo {
   width: 26px;
   height: 26px;
-  background: var(--c-accent);
-  border-radius: var(--radius-lg);
+  background: var(--logo-bg);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: var(--font-sm);
-  font-weight: 900; /* 로고 예외 */
-  color: var(--c-surface);
+  font-weight: 800;
+  color: var(--logo-tx);
+  flex-shrink: 0;
 }
 
 .brand span {
   font-size: var(--font-header);
-  font-weight: var(--fw-semi);
-  color: var(--c-text);
+  font-weight: var(--fw-bold);
+  color: var(--hdr-tx);
+  white-space: nowrap;
 }
 
 /* ── 탭 ── */
 .app-tab {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
   padding: 0 var(--sp-4);
   height: 100%;
   cursor: pointer;
-  color: var(--c-muted);
+  color: var(--hdr-tx2);
   font-size: var(--font-base);
   font-weight: var(--fw-normal);
   border-bottom: 2px solid transparent;
   transition: color .15s;
   user-select: none;
+  white-space: nowrap;
 }
 
-.app-tab:hover { color: var(--c-accent); }
+.app-tab:hover { color: var(--hdr-tx); }
 
 .app-tab.active {
-  color: var(--c-accent);
-  border-bottom-color: var(--c-accent);
+  color: var(--hdr-on);
+  border-bottom-color: var(--hdr-on);
   font-weight: var(--fw-semi);
+}
+
+/* ── 헤더 스페이서 ── */
+.header-spacer { flex: 1; }
+
+/* ── 다크모드 토글 ── */
+#theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: auto 0;
+  padding: 0 var(--sp-3);
+  height: var(--btn-h-sm);
+  border: 1px solid var(--toggle-bd);
+  border-radius: 20px;
+  background: var(--toggle-bg);
+  color: var(--toggle-tx);
+  font-size: var(--font-sm);
+  font-weight: var(--fw-semi);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+#theme-toggle:hover {
+  background: rgba(255,255,255,.18);
+  color: var(--hdr-tx);
 }
 
 /* ── 탭 콘텐츠 ── */
@@ -132,11 +224,11 @@ body {
 ══════════════════════════════════════════════ */
 .btn {
   padding: 0 var(--sp-4);
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--font-base);
-  font-weight: var(--fw-semi);
+  font-weight: var(--fw-bold);
   height: var(--btn-h-md);
   font-family: inherit;
   transition: all .15s;
@@ -144,19 +236,19 @@ body {
 
 .btn-primary {
   background: var(--c-accent);
-  color: var(--c-surface);
+  color: #fff;
   border-color: var(--c-accent);
 }
 
-.btn-primary:hover { opacity: .88; }
+.btn-primary:hover { box-shadow: 0 4px 14px var(--c-accent-glow); }
 
 .btn-secondary {
-  background: var(--c-accent-bg);
-  color: var(--c-accent);
+  background: var(--c-bg);
+  color: var(--c-muted);
   border-color: var(--c-border);
 }
 
-.btn-secondary:hover { border-color: var(--c-accent); }
+.btn-secondary:hover { border-color: var(--c-border2); color: var(--c-text); }
 
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 
@@ -165,10 +257,10 @@ body {
 ══════════════════════════════════════════════ */
 .badge {
   display: inline-block;
-  padding: var(--sp-1) var(--sp-2);
+  padding: 2px var(--sp-2);
   border-radius: 20px;
   font-size: var(--font-sm);
-  font-weight: var(--fw-semi);
+  font-weight: var(--fw-bold);
 }
 
 .badge-finished  { background: var(--c-finished-bg);  color: var(--c-finished-text); }
@@ -184,13 +276,13 @@ body {
   bottom: var(--sp-5);
   right: var(--sp-5);
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
+  border: 1.5px solid var(--c-border);
   color: var(--c-finished-text);
   padding: var(--sp-2) var(--sp-4);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-size: var(--font-sm);
   font-weight: var(--fw-semi);
-  box-shadow: 0 var(--sp-1) var(--sp-4) rgba(0, 0, 0, .1);
+  box-shadow: 0 var(--sp-1) var(--sp-4) rgba(0, 0, 0, .12);
   display: none;
   z-index: 9999;
 }

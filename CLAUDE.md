@@ -221,10 +221,11 @@ Config
 
 #### `/explorer/profile` 동작
 
-- CM API `GET /impalaQueries/{query_id}/queryDetails` 호출
-- 응답 JSON에서 `profile` 필드 추출 (없으면 raw text)
-- `Content-Disposition: attachment; filename="{query_id}_profile.txt"` 로 반환
-- 오류 시 JSON `{"error": "..."}` 반환 (404 / 500)
+- CM 웹 UI 엔드포인트 `GET /cmf/impala/downloadProfile?queryId={query_id}&format=PRETTY_PRINT` 호출
+- Basic Auth (`cm.username` / `cm.password`), SSL 검증 비활성화, timeout=`cm.request_timeout`
+- 응답을 `resp.text`로 직접 반환 — JSON 파싱 없음
+- `Content-Disposition: attachment; filename="{query_id}_profile.txt"` 로 반환 (`text/plain; charset=utf-8`)
+- 404 시 보관 기간 만료 메시지 JSON 반환, 그 외 오류는 HTTP 500 + `{"error": "..."}`
 
 ---
 
@@ -360,7 +361,7 @@ https://{cluster.cm.host}:{cluster.cm.port}
 - `$(id)` — `document.getElementById` 단축
 - `switchTab(id)` — 탭 전환 (`.app-tab`, `.tab-content` active 토글)
 - `showToast(msg, isErr)` — 하단 우측 토스트 3.5초 표시
-- `esc(s)` — XSS 방지 HTML 이스케이프 (`&`, `<`, `>`, `"`)
+- `esc(s)` — XSS 방지 HTML 이스케이프 (`&`, `<`, `>`, `"`, `'`)
 - `_CLUSTER_COLOR` — `Map<id, hex>`, QM·QE 공유
 - `_hexToRgba(hex, alpha)`, `_clFg(id)`, `_clBg(id)` — 클러스터 색상 헬퍼
 - `_STATE_BADGE_CLS` — `{FINISHED, RUNNING, EXCEPTION, QUEUED}` → CSS 클래스 맵
@@ -379,11 +380,16 @@ https://{cluster.cm.host}:{cluster.cm.port}
 | 함수 | 동작 |
 |------|------|
 | `qmLoadSidebar()` | `/monitor/coordinators` 호출, 사이드바 클러스터/코디 구성, `_CLUSTER_COLOR` 채움 |
-| `qmSelectCoord(item)` | 코디네이터 선택, 인포바 색상 갱신, `qmFetchQueries()` 호출 |
+| `buildClusterGroup(cl, coords)` | 클러스터 헤더 + 코디네이터 목록 DOM 요소 생성 후 반환 |
+| `toggleClusterGroup(hdr)` | 사이드바 클러스터 그룹 접기/펼치기 |
+| `qmSelectCoord(item)` | 코디네이터 선택, 인포바 색상·이름 갱신, `coord-placeholder` 클래스 제거, `qmFetchQueries()` 호출 |
+| `qmRefresh()` | `_qmSelectedHost`가 있으면 `qmFetchQueries()` 재호출 |
+| `toggleSec(hdr)` | 쿼리 섹션 body의 `collapsed` 클래스 토글, chevron 문자 전환 |
 | `qmFetchQueries()` | `/monitor/queries/{host}` 호출, in_flight를 `waiting` 필드로 분리, 3섹션 렌더 |
+| `updateSecCnt(id, n, colorClass)` | 섹션 카운트 배지 텍스트·색상 클래스 갱신 |
 | `qmCancel(btn, queryId)` | POST `/monitor/cancel/...`, 성공 시 행 페이드아웃 제거 + `_inflightQueries` 갱신 |
-| `qmCancelRowsAvailable()` | `_inflightQueries`에서 `progress=100% && last_event='Rows available' && row_fetched===0` 필터, confirm 후 `Promise.allSettled` 병렬 취소 |
 | `qmRefreshCounts()` | DOM 기준으로 secCnt·ib 카운트 갱신 (개별 Cancel 후 호출) |
+| `qmCancelRowsAvailable()` | `_inflightQueries`에서 `progress=100% && last_event='Rows available' && row_fetched===0` 필터, confirm 후 `Promise.allSettled` 병렬 취소 |
 
 #### `progress` 파싱
 
@@ -413,19 +419,33 @@ parseFloat(progressStr?.match(/\((\d+(?:\.\d+)?)%\)/)?.[1]) || 0
 | `_sortCol` | 정렬 컬럼 (기본 `startTime`) |
 | `_sortAsc` | 정렬 방향 (기본 내림차순) |
 | `_activeHours` | 프리셋 시간 범위 (기본 1) |
+| `_page` | 현재 페이지 번호 (기본 1) |
+| `_pageSize` | 페이지당 행 수 (상수 100) |
 | `_es` | 현재 EventSource 인스턴스 |
 
 #### 주요 함수
 
 | 함수 | 동작 |
 |------|------|
+| `formatKST(isoStr)` | ISO 시각 → KST "YYYY-MM-DD HH:mm:ss" 문자열 변환 |
+| `formatDuration(ms)` | 밀리초 → `Xms` / `Xs` / `Xm Ys` 사람이 읽는 형식 |
 | `qeInit()` | `qeLoadClusters()` 호출, 이벤트 바인딩, 초기 프리셋 1h 설정 |
 | `qeLoadClusters()` | `/explorer/clusters` 호출, `_CLUSTER_COLOR` 채움, select·탭 구성 |
-| `qeSearch()` | SSE 연결, `_resetStateTabs()` 호출, 진행 중 청크별 `_allRows` 누적 렌더 |
-| `qeStop()` | SSE 중단 |
-| `qeFinish(ev)` | 버튼 상태 복원, 완료 요약 표시 |
+| `qeSetPreset(h)` | 빠른 범위 프리셋 선택, from/to 입력 초기화 |
+| `qeAddCondRow()` | 키워드 조건 입력 행을 `#qe-conds` 영역에 추가 |
+| `qeBuildSearchParams()` | 폼 값 → `URLSearchParams` 객체 반환 |
+| `qeSearch()` | SSE 연결, `_resetStateTabs()` 호출, 청크별 `_allRows` 누적 렌더 |
+| `qeStop()` | SSE 중단, `qeFinish(null)` 호출 |
+| `qeFinish(ev)` | 버튼 상태 복원, 완료 요약 표시 (ev=null이면 요약 생략) |
 | `qeApplyFilters()` | `_allRows`에서 상태·클러스터 필터 적용 → `_rows` 갱신 → 렌더 |
-| `qeRenderTable()` | `_rows` 정렬 후 테이블 재렌더, 확장 행 포함 |
+| `qeUpdateCounts()` | 클러스터/상태 탭 카운트 배지 갱신 |
+| `qeRenderTable()` | `_rows` 정렬·페이지 슬라이싱 후 테이블 재렌더, 확장 행 포함 |
+| `qeRenderPagination(totalPages)` | 페이지 수 > 1이면 페이지네이션 DOM 렌더 |
+| `qeGoPage(n)` | 페이지 번호 범위 클램프 후 `qeRenderTable()` 재호출 |
+| `qeToggleRow(queryId)` | `_openRows` Set 토글 후 `qeRenderTable()` 재호출 |
+| `qeSort(th)` | 컬럼 클릭 시 `_sortCol`·`_sortAsc` 갱신 후 렌더 |
+| `qeSelectState(el)` | 상태 탭 선택, `_activeState` 갱신, `qeApplyFilters()` 호출 |
+| `qeSelectCluster(el)` | 클러스터 탭 선택, `_activeCluster` 갱신, 상태 탭 "전체" 리셋, `qeApplyFilters()` 호출 |
 | `qeDownloadProfile(clusterId, queryId)` | fetch → blob → `<a download>` 트릭으로 저장, 오류 시 toast |
 | `qeReset()` | 폼 초기화 + SSE 중단 + 결과 테이블·데이터 전체 초기화 |
 | `_resetStateTabs()` | `_activeState`·`_activeCluster` 초기화, 탭 UI "전체"로 복원 |
@@ -508,7 +528,7 @@ app:
 | QE 색상 독립성 | `/explorer/clusters`가 `color` 포함 반환 → `qeLoadClusters`에서 직접 `_CLUSTER_COLOR` 채움 (QM 로딩에 무의존) |
 | Cancel (개별) | POST `/monitor/cancel/...` → 성공 시 행 페이드아웃 + `_inflightQueries` 즉시 갱신 + toast |
 | Rows Available 취소 | `progress=100% && last_event='Rows available' && row_fetched===0` 조건, confirm 후 `Promise.allSettled` 병렬 취소 |
-| 프로파일 | CM API `queryDetails` → `profile` 필드 추출 → `text/plain` attachment 다운로드 |
+| 프로파일 | CM 웹 UI `/cmf/impala/downloadProfile?queryId=...&format=PRETTY_PRINT` → `resp.text` → `text/plain` attachment 다운로드 |
 | 새로고침 | 수동 전용 (자동 폴링 없음) |
 | query_state 필터 | Explorer: 서버(Python)와 클라이언트(JS 탭) 양쪽 모두 적용 |
 | QE 탭 초기화 | 새 검색 시작 시 상태·클러스터 탭을 "전체"로 자동 리셋 |

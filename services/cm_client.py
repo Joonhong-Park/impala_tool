@@ -313,5 +313,3 @@ async def _stream_chunked(
         "cluster_results": cluster_results,
         "total": len(collected),
     }
-
-

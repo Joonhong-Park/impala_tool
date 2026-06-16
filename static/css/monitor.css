@@ -4,6 +4,8 @@
 
 #qm-wrap { display: flex; flex: 1; overflow: hidden; }
 
+#qm-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
 /* ── 사이드바 ── */
 #qm-sidebar {
   width: 210px;
@@ -93,6 +95,11 @@
   font-weight: var(--fw-bold);
   min-width: 200px;
   color: var(--c-text);
+}
+
+#qm-coord-name.coord-placeholder {
+  color: var(--c-muted);
+  font-style: italic;
 }
 
 .ib-stat {

@@ -78,9 +78,8 @@ function qmSelectCoord(item) {
 
   $('qm-infobar').style.borderLeftColor = item.dataset.color;
   const nameEl = $('qm-coord-name');
-  nameEl.textContent     = item.dataset.host;
-  nameEl.style.color     = '';
-  nameEl.style.fontStyle = 'normal';
+  nameEl.textContent = item.dataset.host;
+  nameEl.classList.remove('coord-placeholder');
   $('qm-refresh-btn').disabled = false;
   $('qm-cancel-rows-btn').disabled = false;
 

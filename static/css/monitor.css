@@ -204,9 +204,6 @@
   user-select: none;
   border-bottom: 1.5px solid var(--c-border);
   cursor: pointer;
-  position: sticky;
-  top: 110px;
-  z-index: 10;
   background: var(--c-surface);
 }
 

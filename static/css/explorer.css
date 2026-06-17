@@ -260,7 +260,7 @@
 
 table { width: 100%; border-collapse: collapse; }
 
-thead { position: sticky; top: 46px; background: var(--c-bg); z-index: 1; }
+.tbl-wrap thead { position: sticky; top: 46px; background: var(--c-bg); z-index: 1; }
 
 th {
   padding: var(--sp-1) var(--sp-2);

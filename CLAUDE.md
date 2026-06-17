@@ -539,8 +539,9 @@ app:
 | QE 초기화 버튼 | 폼과 함께 결과 테이블·데이터·SSE 연결 전부 초기화 |
 | 클러스터 비활성화 | `config.yaml` `enabled: false` → `load_config()` 에서 해당 클러스터 제외, 서버 재시작 필요 |
 | QM 레이아웃 | `#qm-sidebar { position: fixed }` + `#qm-main { margin-left: 210px }` — 사이드바를 플로우에서 제거해 body 높이를 콘텐츠 기준으로 만들어 전체 페이지 스크롤 구현 |
-| QM 섹션 sticky | `.qm-section { overflow: clip }` — `overflow: hidden`은 CSS 스펙상 스크롤 컨테이너를 생성해 내부 sticky가 동작하지 않음; `clip`은 시각적 클리핑만 수행 |
-| QM sticky top 계산 | `.qm-sec-hdr { top: 110px }` (헤더 46px + 인포바 64px), `.qm-tbl thead { top: 145px }` (+35px 섹션헤더) |
+| QM sticky 범위 | `#app-header`(top:0)와 `#qm-infobar`(top:46)만 고정. 섹션 제목(`.qm-sec-hdr`)과 컬럼 헤더(`.qm-tbl thead`)는 sticky 미적용 — 스크롤 시 콘텐츠와 함께 자연스럽게 흘러감 (의도된 동작) |
+| QM 섹션/테이블 overflow | `.qm-section`은 overflow 미지정(기본 visible) — 과거 `overflow: clip`을 섹션 높이 계산이 깨지는 문제로 제거함. `.qm-tbl-wrap { overflow-x: auto }`로 넓은 테이블은 섹션 내부에서 가로 스크롤 |
+| Explorer thead sticky 스코프 | `static/css/explorer.css`의 `thead { position: sticky; top: 46px }`는 `.tbl-wrap thead`로 스코프 — 스코프 없이 전역 선택자였다면 Query Monitoring 테이블의 `<thead>`에도 적용되어 QM 컬럼 헤더가 데이터 행과 겹치는 버그가 발생함 |
 | Cancel onclick 패턴 | `cancelCell`에서 `data-qid` 속성 사용 — `esc()`가 `'`를 `&#39;`로 변환 후 JS 컨텍스트 onclick 속성에서 브라우저가 디코딩하면 인자가 깨지는 문제 방지 |
 
 ---

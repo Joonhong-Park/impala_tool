@@ -73,7 +73,9 @@ impala_tool/
 ├── launcher_config.yaml         # launcher.py 전용 SSH 터널 서버 설정
 ├── main.py                      # FastAPI 앱 진입점, Jinja2 템플릿 등록
 ├── launcher.py                  # Windows .exe 런처 (SSH 터널 + tkinter GUI)
+├── pack_server.py               # 서버 배포용 zip 패키저
 ├── requirements.txt
+├── README.md
 ├── .gitignore
 ├── routers/
 │   ├── monitor.py               # /monitor/* — impalad 실시간 조회/Cancel
@@ -221,8 +223,10 @@ Config
 
 #### `/explorer/profile` 동작
 
-- CM 웹 UI 엔드포인트 `GET /cmf/impala/downloadProfile?queryId={query_id}&format=PRETTY_PRINT` 호출
-- Basic Auth (`cm.username` / `cm.password`), SSL 검증 비활성화, timeout=`cm.request_timeout`
+- CM 웹 UI는 Basic Auth 미지원 — 세션 로그인 후 다운로드
+  1. `POST /j_spring_security_check` (form data: `j_username`, `j_password`) — 세션 쿠키 획득
+  2. `GET /cmf/impala/downloadProfile?queryId={query_id}&format=PRETTY_PRINT` — 프로파일 다운로드
+- `httpx.AsyncClient(follow_redirects=True)` 사용, SSL 검증 비활성화, timeout=`cm.request_timeout`
 - 응답을 `resp.text`로 직접 반환 — JSON 파싱 없음
 - `Content-Disposition: attachment; filename="{query_id}_profile.txt"` 로 반환 (`text/plain; charset=utf-8`)
 - 404 시 보관 기간 만료 메시지 JSON 반환, 그 외 오류는 HTTP 500 + `{"error": "..."}`
@@ -311,7 +315,7 @@ https://{cluster.cm.host}:{cluster.cm.port}
 
 조건 없음
     → _stream_single_shot: limit=chunk_limit으로 1회 요청
-      done 이벤트 1회 yield
+      progress 이벤트(chunk=0) 1회 → done 이벤트 1회 yield
 ```
 
 ### 필터링 규칙 (`_matches_conditions`)
@@ -385,7 +389,7 @@ https://{cluster.cm.host}:{cluster.cm.port}
 | `qmSelectCoord(item)` | 코디네이터 선택, 인포바 색상·이름 갱신, `coord-placeholder` 클래스 제거, `qmFetchQueries()` 호출 |
 | `qmRefresh()` | `_qmSelectedHost`가 있으면 `qmFetchQueries()` 재호출 |
 | `toggleSec(hdr)` | 쿼리 섹션 body의 `collapsed` 클래스 토글, chevron 문자 전환 |
-| `qmFetchQueries()` | `/monitor/queries/{host}` 호출, in_flight를 `waiting` 필드로 분리, 3섹션 렌더 |
+| `qmFetchQueries(resetSections=false)` | `/monitor/queries/{host}` 호출, in_flight를 `waiting` 필드로 분리, 3섹션 렌더; `resetSections=true` 시 섹션 전체 펼침 초기화 |
 | `updateSecCnt(id, n, colorClass)` | 섹션 카운트 배지 텍스트·색상 클래스 갱신 |
 | `qmCancel(btn, queryId)` | POST `/monitor/cancel/...`, 성공 시 행 페이드아웃 제거 + `_inflightQueries` 갱신 |
 | `qmRefreshCounts()` | DOM 기준으로 secCnt·ib 카운트 갱신 (개별 Cancel 후 호출) |
@@ -534,6 +538,10 @@ app:
 | QE 탭 초기화 | 새 검색 시작 시 상태·클러스터 탭을 "전체"로 자동 리셋 |
 | QE 초기화 버튼 | 폼과 함께 결과 테이블·데이터·SSE 연결 전부 초기화 |
 | 클러스터 비활성화 | `config.yaml` `enabled: false` → `load_config()` 에서 해당 클러스터 제외, 서버 재시작 필요 |
+| QM 레이아웃 | `#qm-sidebar { position: fixed }` + `#qm-main { margin-left: 210px }` — 사이드바를 플로우에서 제거해 body 높이를 콘텐츠 기준으로 만들어 전체 페이지 스크롤 구현 |
+| QM 섹션 sticky | `.qm-section { overflow: clip }` — `overflow: hidden`은 CSS 스펙상 스크롤 컨테이너를 생성해 내부 sticky가 동작하지 않음; `clip`은 시각적 클리핑만 수행 |
+| QM sticky top 계산 | `.qm-sec-hdr { top: 110px }` (헤더 46px + 인포바 64px), `.qm-tbl thead { top: 145px }` (+35px 섹션헤더) |
+| Cancel onclick 패턴 | `cancelCell`에서 `data-qid` 속성 사용 — `esc()`가 `'`를 `&#39;`로 변환 후 JS 컨텍스트 onclick 속성에서 브라우저가 디코딩하면 인자가 깨지는 문제 방지 |
 
 ---
 

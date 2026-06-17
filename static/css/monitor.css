@@ -188,6 +188,7 @@
   min-width: fit-content;
   transition: background .2s;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .qm-sec-hdr {

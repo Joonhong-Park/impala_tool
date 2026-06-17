@@ -124,11 +124,18 @@ def _cm_url(cluster: ClusterConfig) -> str:
 
 
 async def fetch_query_profile(cluster: ClusterConfig, query_id: str) -> httpx.Response:
+    """CM 웹 UI는 Basic Auth 미지원 — 세션 로그인 후 프로파일 다운로드."""
     cfg = _config
-    url = f"https://{cluster.cm.host}:{cluster.cm.port}/cmf/impala/downloadProfile"
-    auth = (cfg.cm.username, cfg.cm.password)
-    async with httpx.AsyncClient(verify=False, auth=auth, timeout=cfg.cm.request_timeout) as client:
-        return await client.get(url, params={"queryId": query_id, "format": "PRETTY_PRINT"})
+    base = f"https://{cluster.cm.host}:{cluster.cm.port}"
+    async with httpx.AsyncClient(verify=False, timeout=cfg.cm.request_timeout, follow_redirects=True) as client:
+        await client.post(
+            f"{base}/j_spring_security_check",
+            data={"j_username": cfg.cm.username, "j_password": cfg.cm.password},
+        )
+        return await client.get(
+            f"{base}/cmf/impala/downloadProfile",
+            params={"queryId": query_id, "format": "PRETTY_PRINT"},
+        )
 
 
 def _safe_json(resp: httpx.Response) -> dict:

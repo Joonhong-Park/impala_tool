@@ -122,6 +122,8 @@ async def get_profile(cluster_id: str, query_id: str):
             return JSONResponse({"error": "프로파일을 찾을 수 없습니다. 보관 기간이 지났거나 아직 생성되지 않은 프로파일입니다."}, status_code=404)
         resp.raise_for_status()
         profile_text = resp.text
+        if "__CLOUDERA_PRE_LOGIN_FORM__" in profile_text[:500]:
+            return JSONResponse({"error": "CM 인증 실패: config.yaml의 cm.username / cm.password를 확인하세요."}, status_code=401)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 

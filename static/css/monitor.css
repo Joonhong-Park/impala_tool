@@ -2,23 +2,23 @@
    QUERY MONITORING
 ══════════════════════════════════════════════ */
 
-/* align-items:flex-start → 각 아이템이 자연 높이만 차지, 컨테이너가 콘텐츠 높이로 늘어남 */
-#qm-wrap { display: flex; align-items: flex-start; }
+#qm-wrap { display: block; }
 
-#qm-main { flex: 1; min-width: 0; }
+#qm-main { margin-left: 210px; min-width: 0; }
 
 /* ── 사이드바 ── */
 #qm-sidebar {
+  position: fixed;
+  top: 46px;
+  left: 0;
   width: 210px;
-  flex-shrink: 0;
+  height: calc(100vh - 46px);
   background: var(--c-surface);
   border-right: 1.5px solid var(--c-border);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  position: sticky;
-  top: 46px;
-  max-height: calc(100vh - 46px);
+  z-index: 90;
   transition: background .2s;
 }
 

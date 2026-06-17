@@ -112,10 +112,7 @@ body {
   color: var(--c-text);
   font-size: var(--font-base);
   font-weight: var(--fw-normal);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   transition: background .2s, color .2s;
 }
@@ -129,7 +126,9 @@ body {
   padding: 0 var(--sp-5);
   display: flex;
   align-items: stretch;
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   transition: background .2s;
 }
 
@@ -216,8 +215,8 @@ body {
 }
 
 /* ── 탭 콘텐츠 ── */
-.tab-content { display: none; flex: 1; min-height: 0; overflow: hidden; flex-direction: column; }
-.tab-content.active { display: flex; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
 /* ══════════════════════════════════════════════
    BUTTONS

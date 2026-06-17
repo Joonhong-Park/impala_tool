@@ -72,9 +72,8 @@
   box-shadow: 0 0 0 3px var(--c-accent-bg);
 }
 
-/* 개별 입력 최소 너비 (HTML 인라인 style 흡수) */
-#qe-user         { min-width: 140px !important; }
-#qe-from, #qe-to { min-width: 172px !important; }
+#qe-user          { min-width: 140px; }
+#qe-from, #qe-to  { min-width: 172px; }
 
 /* ── 프리셋 버튼 ── */
 .presets { display: flex; gap: var(--sp-1); }

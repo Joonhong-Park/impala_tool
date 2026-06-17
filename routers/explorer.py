@@ -77,7 +77,6 @@ async def list_clusters():
     return {"clusters": [{"id": c.id, "color": c.color} for c in _config.clusters]}
 
 
-
 @router.get("/queries/stream")
 async def stream_queries(
     conditions: Optional[str] = Query(None),

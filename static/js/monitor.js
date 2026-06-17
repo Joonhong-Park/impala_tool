@@ -83,7 +83,7 @@ function qmSelectCoord(item) {
   $('qm-refresh-btn').disabled = false;
   $('qm-cancel-rows-btn').disabled = false;
 
-  qmFetchQueries();
+  qmFetchQueries(true);
 }
 
 /* 새로고침 */
@@ -100,12 +100,14 @@ function toggleSec(hdr) {
 }
 
 /* 쿼리 조회 */
-async function qmFetchQueries() {
+async function qmFetchQueries(resetSections = false) {
   const host = _qmSelectedHost;
-  document.querySelectorAll('.qm-sec-body').forEach(b => {
-    b.classList.remove('collapsed');
-    b.previousElementSibling.querySelector('.chev').textContent = '▾';
-  });
+  if (resetSections) {
+    document.querySelectorAll('.qm-sec-body').forEach(b => {
+      b.classList.remove('collapsed');
+      b.previousElementSibling.querySelector('.chev').textContent = '▾';
+    });
+  }
   try {
     const resp = await fetch(`/monitor/queries/${encodeURIComponent(host)}`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -166,7 +168,7 @@ function qidCell(q) {
 }
 
 function cancelCell(q) {
-  return `<td><button class="btn-cancel" onclick="qmCancel(this,'${esc(q.query_id)}')">Cancel</button></td>`;
+  return `<td><button class="btn-cancel" data-qid="${esc(q.query_id)}" onclick="qmCancel(this,this.dataset.qid)">Cancel</button></td>`;
 }
 
 function metaCells(q) {
@@ -291,12 +293,12 @@ async function qmCancel(btn, queryId) {
 }
 
 function qmRefreshCounts() {
+  const colorMap = { inflight: 'blue', waiting: 'amber', completed: 'green' };
   ['inflight', 'waiting', 'completed'].forEach(key => {
     const tbody = $('tbody-' + key);
     if (!tbody) return;
     const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.querySelector('td[colspan]')).length;
-    const cnt = $('sec-cnt-' + key);
-    if (cnt) cnt.textContent = rows;
+    updateSecCnt('sec-cnt-' + key, rows, colorMap[key]);
     const ib = $('ib-' + key);
     if (ib) ib.textContent = rows;
   });

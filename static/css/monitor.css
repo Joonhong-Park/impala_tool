@@ -18,7 +18,7 @@
   overflow-y: auto;
   position: sticky;
   top: 46px;
-  height: calc(100vh - 46px);
+  max-height: calc(100vh - 46px);
   transition: background .2s;
 }
 

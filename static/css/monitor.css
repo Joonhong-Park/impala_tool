@@ -188,9 +188,7 @@
   background: var(--c-surface);
   border: 1.5px solid var(--c-border);
   border-radius: var(--radius-lg);
-  min-width: fit-content;
   transition: background .2s;
-  overflow: clip;
   margin-bottom: var(--sp-3);
 }
 
@@ -244,9 +242,7 @@
 .qm-sec-body.collapsed { display: none; }
 
 /* ── 모니터 테이블 ── */
-.qm-tbl-wrap { overflow: visible; }
-
-.qm-tbl thead { position: sticky; top: 145px; z-index: 5; }
+.qm-tbl-wrap { overflow-x: auto; }
 
 .qm-tbl { width: 100%; border-collapse: collapse; min-width: 1100px; }
 

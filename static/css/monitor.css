@@ -2,9 +2,9 @@
    QUERY MONITORING
 ══════════════════════════════════════════════ */
 
-#qm-wrap { display: flex; flex: 1; overflow: hidden; }
+#qm-wrap { display: flex; flex: 1; min-height: 0; overflow: hidden; }
 
-#qm-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+#qm-main { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 
 /* ── 사이드바 ── */
 #qm-sidebar {
@@ -172,11 +172,10 @@
 /* ── 섹션 영역 ── */
 #qm-sections {
   flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: var(--sp-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
+  display: block;
   background: var(--c-bg);
   transition: background .2s;
 }
@@ -188,7 +187,11 @@
   min-width: fit-content;
   transition: background .2s;
   overflow: hidden;
-  flex-shrink: 0;
+  margin-bottom: var(--sp-3);
+}
+
+.qm-section:last-child {
+  margin-bottom: 0;
 }
 
 .qm-sec-hdr {

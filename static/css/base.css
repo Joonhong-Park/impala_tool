@@ -216,7 +216,7 @@ body {
 }
 
 /* ── 탭 콘텐츠 ── */
-.tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.tab-content { display: none; flex: 1; min-height: 0; overflow: hidden; flex-direction: column; }
 .tab-content.active { display: flex; }
 
 /* ══════════════════════════════════════════════

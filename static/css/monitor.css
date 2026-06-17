@@ -2,14 +2,12 @@
    QUERY MONITORING
 ══════════════════════════════════════════════ */
 
-#qm-wrap { display: flex; min-height: calc(100vh - 46px); }
+#qm-wrap { display: grid; grid-template-columns: 210px 1fr; }
 
-#qm-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+#qm-main { min-width: 0; }
 
 /* ── 사이드바 ── */
 #qm-sidebar {
-  width: 210px;
-  flex-shrink: 0;
   background: var(--c-surface);
   border-right: 1.5px solid var(--c-border);
   display: flex;
@@ -18,7 +16,6 @@
   position: sticky;
   top: 46px;
   height: calc(100vh - 46px);
-  align-self: flex-start;
   transition: background .2s;
 }
 

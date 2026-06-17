@@ -2,12 +2,15 @@
    QUERY MONITORING
 ══════════════════════════════════════════════ */
 
-#qm-wrap { display: grid; grid-template-columns: 210px 1fr; }
+/* align-items:flex-start → 각 아이템이 자연 높이만 차지, 컨테이너가 콘텐츠 높이로 늘어남 */
+#qm-wrap { display: flex; align-items: flex-start; }
 
-#qm-main { min-width: 0; }
+#qm-main { flex: 1; min-width: 0; }
 
 /* ── 사이드바 ── */
 #qm-sidebar {
+  width: 210px;
+  flex-shrink: 0;
   background: var(--c-surface);
   border-right: 1.5px solid var(--c-border);
   display: flex;

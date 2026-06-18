@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import httpx
 
 
@@ -16,7 +18,7 @@ class ImpalaClient:
         async with self._client(timeout=30) as c:
             resp = await c.get(self._url(host, port, "/queries"), params={"json": ""})
             resp.raise_for_status()
-            return resp.json()
+            return json.loads(resp.content.decode('utf-8', errors='replace'))
 
     async def cancel_query(self, host: str, port: int, query_id: str) -> bool:
         async with self._client(timeout=15) as c:

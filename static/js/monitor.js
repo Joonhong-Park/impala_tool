@@ -239,7 +239,7 @@ function renderInflight(queries) {
       </td>
       <td style="white-space:nowrap">${esc(q.start_time || '')}</td>
       <td>${esc(q.duration || '')}</td>
-      <td>${q.row_fetched != null ? q.row_fetched : '—'}</td>
+      <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
       <td>${esc(q.last_event || '')}</td>
       <td>${esc(q.resource_pool || '')}</td>
@@ -267,7 +267,7 @@ function renderWaiting(queries) {
       <td style="white-space:nowrap">${esc(q.start_time || '')}</td>
       <td style="white-space:nowrap">${esc(q.end_time || '')}</td>
       <td>${esc(q.duration || '')}</td>
-      <td>${q.row_fetched != null ? q.row_fetched : '—'}</td>
+      <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
       ${stmtCell(q)}`;
     tbody.appendChild(tr);
@@ -292,7 +292,7 @@ function renderCompleted(queries) {
       <td style="white-space:nowrap">${esc(q.end_time || '')}</td>
       <td>${esc(q.duration || '')}</td>
       <td>${esc(q.queued_duration || '—')}</td>
-      <td>${q.row_fetched != null ? q.row_fetched : '—'}</td>
+      <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
       <td>${esc(q.bytes_read || '—')}</td>
       <td>${esc(q.mem_usage || '')}</td>
       <td>${esc(q.resource_pool || '')}</td>
@@ -347,7 +347,7 @@ async function qmCancelRowsAvailable() {
   const targets = _inflightQueries.filter(q =>
     _parseProgress(q.progress) === 100 &&
     q.last_event === 'Rows available' &&
-    q.row_fetched === 0
+    q.rows_fetched === 0
   );
 
   if (!targets.length) {

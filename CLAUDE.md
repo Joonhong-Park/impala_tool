@@ -261,7 +261,7 @@ Config
 | `start_time` | str | 시작 시각 |
 | `duration` | str | 경과 시간 문자열 |
 | `progress` | str | `"47891 / 54138 (88.461%)"` 형식 — 파싱 필요 |
-| `row_fetched` | int | fetch된 행 수 |
+| `rows_fetched` | int | fetch된 행 수 |
 | `mem_usage` | str | 메모리 사용량 |
 | `last_event` | str | 마지막 이벤트 문자열 (e.g. `"Rows available"`) |
 | `resource_pool` | str | 리소스 풀 |
@@ -283,7 +283,7 @@ Config
 | `end_time` | str | 종료 시각 |
 | `duration` | str | 실행 시간 |
 | `queued_duration` | str | 큐 대기 시간 |
-| `row_fetched` | int | fetch된 행 수 |
+| `rows_fetched` | int | fetch된 행 수 |
 | `bytes_read` | str | 읽은 바이트 수 |
 | `mem_usage` | str | 메모리 사용량 |
 | `resource_pool` | str | 리소스 풀 |
@@ -393,7 +393,7 @@ https://{cluster.cm.host}:{cluster.cm.port}
 | `updateSecCnt(id, n, colorClass)` | 섹션 카운트 배지 텍스트·색상 클래스 갱신 |
 | `qmCancel(btn, queryId)` | POST `/monitor/cancel/...`, 성공 시 행 페이드아웃 제거 + `_inflightQueries` 갱신 |
 | `qmRefreshCounts()` | DOM 기준으로 secCnt·ib 카운트 갱신 (개별 Cancel 후 호출) |
-| `qmCancelRowsAvailable()` | `_inflightQueries`에서 `progress=100% && last_event='Rows available' && row_fetched===0` 필터, confirm 후 `Promise.allSettled` 병렬 취소 |
+| `qmCancelRowsAvailable()` | `_inflightQueries`에서 `progress=100% && last_event='Rows available' && rows_fetched===0` 필터, confirm 후 `Promise.allSettled` 병렬 취소 |
 
 #### `progress` 파싱
 
@@ -531,7 +531,7 @@ app:
 | 클러스터 색상 | `config.yaml`의 `color` 필드 → API 응답 → `common.js`의 `_CLUSTER_COLOR` Map (QM·QE 공유) |
 | QE 색상 독립성 | `/explorer/clusters`가 `color` 포함 반환 → `qeLoadClusters`에서 직접 `_CLUSTER_COLOR` 채움 (QM 로딩에 무의존) |
 | Cancel (개별) | POST `/monitor/cancel/...` → 성공 시 행 페이드아웃 + `_inflightQueries` 즉시 갱신 + toast |
-| Rows Available 취소 | `progress=100% && last_event='Rows available' && row_fetched===0` 조건, confirm 후 `Promise.allSettled` 병렬 취소 |
+| Rows Available 취소 | `progress=100% && last_event='Rows available' && rows_fetched===0` 조건, confirm 후 `Promise.allSettled` 병렬 취소 |
 | 프로파일 | CM 웹 UI `/cmf/impala/downloadProfile?queryId=...&format=PRETTY_PRINT` → `resp.text` → `text/plain` attachment 다운로드 |
 | 새로고침 | 수동 전용 (자동 폴링 없음) |
 | query_state 필터 | Explorer: 서버(Python)와 클라이언트(JS 탭) 양쪽 모두 적용 |

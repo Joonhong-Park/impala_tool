@@ -97,6 +97,40 @@ function toggleSec(hdr) {
   const chev = hdr.querySelector('.chev');
   const collapsed = body.classList.toggle('collapsed');
   chev.textContent = collapsed ? '▸' : '▾';
+  if (!collapsed) {
+    const bar = $('qm-hscroll');
+    const wrap = body.querySelector('.qm-tbl-wrap');
+    if (bar && wrap) wrap.scrollLeft = bar.scrollLeft;
+  }
+}
+
+function qmSyncHScroll() {
+  const bar = $('qm-hscroll');
+  const inner = $('qm-hscroll-inner');
+  if (!bar || !inner) return;
+
+  const table = document.querySelector('.qm-tbl');
+  inner.style.width = (table ? table.scrollWidth : 1100) + 'px';
+
+  const wraps = document.querySelectorAll('.qm-tbl-wrap');
+  let busy = false;
+
+  bar.onscroll = () => {
+    if (busy) return;
+    busy = true;
+    wraps.forEach(w => { w.scrollLeft = bar.scrollLeft; });
+    busy = false;
+  };
+
+  wraps.forEach(w => {
+    w.onscroll = () => {
+      if (busy) return;
+      busy = true;
+      bar.scrollLeft = w.scrollLeft;
+      wraps.forEach(o => { if (o !== w) o.scrollLeft = w.scrollLeft; });
+      busy = false;
+    };
+  });
 }
 
 /* 쿼리 조회 */
@@ -131,6 +165,7 @@ async function qmFetchQueries(resetSections = false) {
     updateSecCnt('sec-cnt-inflight',  inflight.length,  'blue');
     updateSecCnt('sec-cnt-waiting',   waiting.length,   'amber');
     updateSecCnt('sec-cnt-completed', completed.length, 'green');
+    qmSyncHScroll();
   } catch (e) {
     _inflightQueries = [];
     renderInflight([]);

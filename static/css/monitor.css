@@ -239,7 +239,22 @@
 .qm-sec-body.collapsed { display: none; }
 
 /* ── 모니터 테이블 ── */
-.qm-tbl-wrap { overflow-x: auto; }
+.qm-tbl-wrap { overflow-x: auto; scrollbar-width: none; }
+.qm-tbl-wrap::-webkit-scrollbar { display: none; }
+
+/* 통합 가로 스크롤바 */
+#qm-hscroll {
+  position: fixed;
+  bottom: 0;
+  left: 210px;
+  right: 0;
+  height: 14px;
+  overflow-x: auto;
+  background: var(--c-bg);
+  border-top: 1px solid var(--c-border);
+  z-index: 40;
+}
+#qm-hscroll-inner { height: 1px; }
 
 .qm-tbl { width: 100%; border-collapse: collapse; min-width: 1100px; }
 

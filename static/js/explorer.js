@@ -92,10 +92,8 @@ function qeSetPreset(h) {
   const now     = new Date();
   const toStr   = _toDatetimeLocal(now);
   const fromStr = _toDatetimeLocal(new Date(now.getTime() - h * 3600 * 1000));
-  $('qe-from').value     = fromStr;
-  $('qe-to').value       = toStr;
-  $('qe-from-cal').value = fromStr.replace(' ', 'T');
-  $('qe-to-cal').value   = toStr.replace(' ', 'T');
+  $('qe-from').value = fromStr;
+  $('qe-to').value   = toStr;
 }
 
 /* 조건 행 추가 */

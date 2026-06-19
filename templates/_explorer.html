@@ -2,10 +2,10 @@
   <div class="filter-row">
     <div class="fg">
       <label>사용자</label>
-      <input type="text" id="qe-user" placeholder="사용자명">
+      <input type="text" id="qe-user" placeholder="username">
     </div>
     <div class="fg">
-      <label>키워드</label>
+      <label>검색 조건</label>
       <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
         <div class="cond-area" id="qe-conds"></div>
         <button class="btn-add-cond" id="qe-add-cond">+ 추가</button>
@@ -23,11 +23,11 @@
     </div>
     <div class="fg">
       <label>시작</label>
-      <input type="text" id="qe-from" placeholder="2026-06-09 00:00">
+      <input type="datetime-local" id="qe-from">
     </div>
     <div class="fg">
       <label>종료</label>
-      <input type="text" id="qe-to" placeholder="2026-06-09 23:59">
+      <input type="datetime-local" id="qe-to">
     </div>
   </div>
   <div class="filter-row">

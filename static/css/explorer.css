@@ -73,7 +73,7 @@
 }
 
 #qe-user          { min-width: 140px; }
-#qe-from, #qe-to  { min-width: 172px; }
+#qe-from, #qe-to  { min-width: 190px; }
 
 /* ── 프리셋 버튼 ── */
 .presets { display: flex; gap: var(--sp-1); }
@@ -252,6 +252,13 @@
   color: var(--c-accent);
   border-color: transparent;
 }
+
+.stab[data-state="FINISHED"].active        { color: var(--c-finished-text); border-bottom-color: var(--c-finished-text); }
+.stab[data-state="FINISHED"].active .cnt   { background: var(--c-finished-bg); color: var(--c-finished-text); border-color: transparent; }
+.stab[data-state="RUNNING"].active         { color: var(--c-running-text); border-bottom-color: var(--c-running-text); }
+.stab[data-state="RUNNING"].active .cnt    { background: var(--c-running-bg); color: var(--c-running-text); border-color: transparent; }
+.stab[data-state="EXCEPTION"].active       { color: var(--c-exception-text); border-bottom-color: var(--c-exception-text); }
+.stab[data-state="EXCEPTION"].active .cnt  { background: var(--c-exception-bg); color: var(--c-exception-text); border-color: transparent; }
 
 /* ══════════════════════════════════════════════
    EXPLORER TABLE

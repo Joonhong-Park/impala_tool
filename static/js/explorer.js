@@ -94,7 +94,7 @@ function qeAddCondRow() {
   const row  = document.createElement('div');
   row.className = 'cond-row';
   row.innerHTML = `
-    <input class="cond-val" type="text" placeholder="키워드" style="min-width:140px">
+    <input class="cond-val" type="text" placeholder="table, 키워드 등" style="min-width:160px">
     <button class="cond-remove" onclick="this.closest('.cond-row').remove()" title="제거">×</button>`;
   area.appendChild(row);
 }
@@ -103,8 +103,8 @@ function qeAddCondRow() {
 function qeBuildSearchParams() {
   const qtype      = $('qe-qtype').value;
   const clusterSel = $('qe-cluster-select').value;
-  const fromVal    = $('qe-from').value.trim();
-  const toVal      = $('qe-to').value.trim();
+  const fromVal    = $('qe-from').value.trim().replace('T', ' ');
+  const toVal      = $('qe-to').value.trim().replace('T', ' ');
 
   const conditions = [];
   const userVal = ($('qe-user').value || '').trim();

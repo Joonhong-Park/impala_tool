@@ -237,7 +237,7 @@ function renderInflight(queries) {
         <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(pct, 100)}%"></div></div>
         <span>${pct.toFixed(1)}%</span>
       </td>
-      <td>${esc(q.start_time || '')}</td>
+      <td style="white-space:nowrap">${esc(q.start_time || '')}</td>
       <td>${esc(q.duration || '')}</td>
       <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
@@ -264,8 +264,8 @@ function renderWaiting(queries) {
       ${metaCells(q)}
       <td>${stateBadge(q.state)}</td>
       <td style="font-weight:600">${esc(q.waiting_time || '')}</td>
-      <td>${esc(q.start_time || '')}</td>
-      <td>${esc(q.end_time || '')}</td>
+      <td style="white-space:nowrap">${esc(q.start_time || '')}</td>
+      <td style="white-space:nowrap">${esc(q.end_time || '')}</td>
       <td>${esc(q.duration || '')}</td>
       <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>
       <td>${esc(q.mem_usage || '')}</td>
@@ -288,8 +288,8 @@ function renderCompleted(queries) {
       ${qidCell(q)}
       ${metaCells(q)}
       <td>${stateBadge(q.state)}</td>
-      <td>${esc(q.start_time || '')}</td>
-      <td>${esc(q.end_time || '')}</td>
+      <td style="white-space:nowrap">${esc(q.start_time || '')}</td>
+      <td style="white-space:nowrap">${esc(q.end_time || '')}</td>
       <td>${esc(q.duration || '')}</td>
       <td>${esc(q.queued_duration || '—')}</td>
       <td>${q.rows_fetched != null ? q.rows_fetched : '—'}</td>

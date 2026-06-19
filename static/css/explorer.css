@@ -77,28 +77,20 @@
 .date-wrap { display: flex; align-items: center; gap: 4px; }
 #qe-from, #qe-to { min-width: 148px; }
 
-.cal-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* datetime-local을 캘린더 아이콘처럼 표시 — 클릭 시 브라우저 native picker 열림 */
+.cal-trigger {
   width: 30px;
+  min-width: 0;
   height: var(--btn-h-sm);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-sm);
   background: var(--c-surface);
-  font-size: 14px;
-  overflow: hidden;
-  flex-shrink: 0;
+  color: transparent;
   cursor: pointer;
-  user-select: none;
-}
-.cal-input {
-  position: fixed;
-  top: 0; left: 0;
-  width: 1px; height: 1px;
-  opacity: 0;
-  pointer-events: none;
+  flex-shrink: 0;
+  padding: 0 2px;
+  outline: none;
+  font-family: inherit;
 }
 
 /* ── 프리셋 버튼 ── */

@@ -14,13 +14,6 @@ let _es            = null;
 let _page          = 1;
 const _pageSize    = 100;
 
-/* 캘린더 picker 열기 (showPicker API, 폴백 click) */
-function _openCal(id) {
-  const el = $(id);
-  if (el.showPicker) el.showPicker();
-  else el.click();
-}
-
 /* Date → "YYYY-MM-DD HH:MM" (KST, 텍스트 입력 표시용) */
 function _toDatetimeLocal(date) {
   return date.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16);

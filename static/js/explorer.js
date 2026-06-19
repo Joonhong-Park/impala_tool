@@ -52,13 +52,6 @@ async function qeInit() {
     btn.onclick = () => qeSetPreset(parseInt(btn.dataset.h));
   });
 
-  ['qe-from', 'qe-to'].forEach(id => {
-    $(id).addEventListener('change', () => {
-      _activeHours = 0;
-      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    });
-  });
-
   document.querySelector('.filters').addEventListener('keydown', e => {
     if (e.key === 'Enter') qeSearch();
   });

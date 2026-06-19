@@ -13,6 +13,8 @@ let _activeHours   = 1;
 let _es            = null;
 let _page          = 1;
 const _pageSize    = 100;
+let _fpFrom        = null;
+let _fpTo          = null;
 
 /* Date → "YYYY-MM-DD HH:MM" (KST, 텍스트 입력 표시용) */
 function _toDatetimeLocal(date) {
@@ -41,6 +43,17 @@ function formatDuration(ms) {
 async function qeInit() {
   await qeLoadClusters();
   qeAddCondRow();
+
+  const fpOpts = {
+    enableTime: true,
+    dateFormat: 'Y-m-d H:i',
+    time_24hr: true,
+    locale: 'ko',
+    allowInput: true,
+  };
+  _fpFrom = flatpickr($('qe-from'), fpOpts);
+  _fpTo   = flatpickr($('qe-to'),   fpOpts);
+
   qeSetPreset(1);
 
   $('qe-search-btn').onclick = qeSearch;
@@ -90,10 +103,10 @@ function qeSetPreset(h) {
     b.classList.toggle('active', parseInt(b.dataset.h) === h);
   });
   const now     = new Date();
-  const toStr   = _toDatetimeLocal(now);
   const fromStr = _toDatetimeLocal(new Date(now.getTime() - h * 3600 * 1000));
-  $('qe-from').value = fromStr;
-  $('qe-to').value   = toStr;
+  const toStr   = _toDatetimeLocal(now);
+  if (_fpFrom) _fpFrom.setDate(fromStr, true); else $('qe-from').value = fromStr;
+  if (_fpTo)   _fpTo.setDate(toStr,   true);   else $('qe-to').value   = toStr;
 }
 
 /* 조건 행 추가 */
@@ -395,8 +408,8 @@ function qeReset() {
   qeAddCondRow();
   $('qe-cluster-select').value = '';
   $('qe-qtype').value = '';
-  $('qe-from').value = '';
-  $('qe-to').value   = '';
+  if (_fpFrom) _fpFrom.clear(); else $('qe-from').value = '';
+  if (_fpTo)   _fpTo.clear();   else $('qe-to').value   = '';
   qeSetPreset(1);
   _resetStateTabs();
 

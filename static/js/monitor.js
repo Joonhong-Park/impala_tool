@@ -222,7 +222,7 @@ function renderInflight(queries) {
   const tbody = $('tbody-inflight');
   tbody.innerHTML = '';
   if (!queries.length) {
-    tbody.innerHTML = emptyRow(14, '실행 중인 쿼리 없음');
+    tbody.innerHTML = emptyRow(13, '실행 중인 쿼리 없음');
     return;
   }
   queries.forEach(q => {
@@ -230,7 +230,6 @@ function renderInflight(queries) {
     const tr  = document.createElement('tr');
     tr.innerHTML = `
       ${qidCell(q)}
-      ${cancelCell(q)}
       ${metaCells(q)}
       <td><span class="badge-sm badge-running-sm">${esc(q.state || '')}</span></td>
       <td>

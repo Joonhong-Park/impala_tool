@@ -14,6 +14,11 @@ let _es            = null;
 let _page          = 1;
 const _pageSize    = 100;
 
+/* Date → datetime-local 포맷 "YYYY-MM-DDTHH:MM" (KST) */
+function _toDatetimeLocal(date) {
+  return date.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16).replace(' ', 'T');
+}
+
 /* ISO 시각 → KST "YYYY-MM-DD HH:mm:ss" */
 function formatKST(isoStr) {
   if (!isoStr) return '';
@@ -45,6 +50,13 @@ async function qeInit() {
 
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.onclick = () => qeSetPreset(parseInt(btn.dataset.h));
+  });
+
+  ['qe-from', 'qe-to'].forEach(id => {
+    $(id).addEventListener('change', () => {
+      _activeHours = 0;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    });
   });
 
   document.querySelector('.filters').addEventListener('keydown', e => {
@@ -84,8 +96,9 @@ function qeSetPreset(h) {
   document.querySelectorAll('.preset-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.h) === h);
   });
-  $('qe-from').value = '';
-  $('qe-to').value   = '';
+  const now = new Date();
+  $('qe-to').value   = _toDatetimeLocal(now);
+  $('qe-from').value = _toDatetimeLocal(new Date(now.getTime() - h * 3600 * 1000));
 }
 
 /* 조건 행 추가 */

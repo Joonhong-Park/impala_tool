@@ -14,9 +14,9 @@ let _es            = null;
 let _page          = 1;
 const _pageSize    = 100;
 
-/* Date → datetime-local 포맷 "YYYY-MM-DDTHH:MM" (KST) */
+/* Date → "YYYY-MM-DD HH:MM" (KST, 텍스트 입력 표시용) */
 function _toDatetimeLocal(date) {
-  return date.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16).replace(' ', 'T');
+  return date.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16);
 }
 
 /* ISO 시각 → KST "YYYY-MM-DD HH:mm:ss" */
@@ -89,9 +89,13 @@ function qeSetPreset(h) {
   document.querySelectorAll('.preset-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.h) === h);
   });
-  const now = new Date();
-  $('qe-to').value   = _toDatetimeLocal(now);
-  $('qe-from').value = _toDatetimeLocal(new Date(now.getTime() - h * 3600 * 1000));
+  const now     = new Date();
+  const toStr   = _toDatetimeLocal(now);
+  const fromStr = _toDatetimeLocal(new Date(now.getTime() - h * 3600 * 1000));
+  $('qe-from').value     = fromStr;
+  $('qe-to').value       = toStr;
+  $('qe-from-cal').value = fromStr.replace(' ', 'T');
+  $('qe-to-cal').value   = toStr.replace(' ', 'T');
 }
 
 /* 조건 행 추가 */
@@ -109,8 +113,8 @@ function qeAddCondRow() {
 function qeBuildSearchParams() {
   const qtype      = $('qe-qtype').value;
   const clusterSel = $('qe-cluster-select').value;
-  const fromVal    = $('qe-from').value.trim().replace('T', ' ');
-  const toVal      = $('qe-to').value.trim().replace('T', ' ');
+  const fromVal    = $('qe-from').value.trim().replace(' ', 'T');
+  const toVal      = $('qe-to').value.trim().replace(' ', 'T');
 
   const conditions = [];
   const userVal = ($('qe-user').value || '').trim();

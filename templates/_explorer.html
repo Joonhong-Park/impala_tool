@@ -25,14 +25,16 @@
       <label>시작</label>
       <div class="date-wrap">
         <input type="text" id="qe-from" placeholder="2026-06-19 14:30" autocomplete="off">
-        <label class="cal-btn" title="캘린더에서 선택">📅<input type="datetime-local" id="qe-from-cal" tabindex="-1" onchange="$('qe-from').value=this.value.replace('T',' ')"></label>
+        <button type="button" class="cal-btn" onclick="_openCal('qe-from-cal')" title="캘린더에서 선택">📅</button>
+        <input type="datetime-local" id="qe-from-cal" class="cal-input" onchange="$('qe-from').value=this.value.replace('T',' ')">
       </div>
     </div>
     <div class="fg">
       <label>종료</label>
       <div class="date-wrap">
         <input type="text" id="qe-to" placeholder="2026-06-19 14:30" autocomplete="off">
-        <label class="cal-btn" title="캘린더에서 선택">📅<input type="datetime-local" id="qe-to-cal" tabindex="-1" onchange="$('qe-to').value=this.value.replace('T',' ')"></label>
+        <button type="button" class="cal-btn" onclick="_openCal('qe-to-cal')" title="캘린더에서 선택">📅</button>
+        <input type="datetime-local" id="qe-to-cal" class="cal-input" onchange="$('qe-to').value=this.value.replace('T',' ')">
       </div>
     </div>
   </div>

@@ -93,12 +93,12 @@
   cursor: pointer;
   user-select: none;
 }
-.cal-btn input[type="datetime-local"] {
-  position: absolute;
-  width: 0;
-  height: 0;
+.cal-input {
+  position: fixed;
+  top: 0; left: 0;
+  width: 1px; height: 1px;
   opacity: 0;
-  overflow: hidden;
+  pointer-events: none;
 }
 
 /* ── 프리셋 버튼 ── */

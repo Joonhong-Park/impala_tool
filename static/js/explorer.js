@@ -41,7 +41,6 @@ function formatDuration(ms) {
 
 /* 초기화 */
 async function qeInit() {
-  await qeLoadClusters();
   qeAddCondRow();
 
   const fpOpts = {
@@ -68,6 +67,13 @@ async function qeInit() {
   document.querySelector('.filters').addEventListener('keydown', e => {
     if (e.key === 'Enter') qeSearch();
   });
+
+  /* 클러스터 목록 로딩 실패가 위 UI 초기화(달력 등)를 막지 않도록 분리 */
+  try {
+    await qeLoadClusters();
+  } catch (e) {
+    showToast(`클러스터 목록을 불러오지 못했습니다: ${e.message}`, true);
+  }
 }
 
 async function qeLoadClusters() {

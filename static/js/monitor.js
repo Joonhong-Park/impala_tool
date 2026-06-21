@@ -11,18 +11,22 @@ function _parseProgress(progressStr) {
 
 /* 사이드바 로드 */
 async function qmLoadSidebar() {
-  const resp = await fetch('/monitor/coordinators');
-  if (!resp.ok) return;
-  const { clusters } = await resp.json();
+  try {
+    const resp = await fetch('/monitor/coordinators');
+    if (!resp.ok) return;
+    const { clusters } = await resp.json();
 
-  const opsEl  = $('sb-ops');
-  const userEl = $('sb-user');
+    const opsEl  = $('sb-ops');
+    const userEl = $('sb-user');
 
-  clusters.forEach(cl => {
-    _CLUSTER_COLOR.set(cl.id, cl.color);
-    if (cl.ops.length > 0)  opsEl.appendChild(buildClusterGroup(cl, cl.ops));
-    if (cl.user.length > 0) userEl.appendChild(buildClusterGroup(cl, cl.user));
-  });
+    clusters.forEach(cl => {
+      _CLUSTER_COLOR.set(cl.id, cl.color);
+      if (cl.ops.length > 0)  opsEl.appendChild(buildClusterGroup(cl, cl.ops));
+      if (cl.user.length > 0) userEl.appendChild(buildClusterGroup(cl, cl.user));
+    });
+  } catch (e) {
+    showToast(`코디네이터 목록을 불러오지 못했습니다: ${e.message}`, true);
+  }
 }
 
 function buildClusterGroup(cl, coords) {

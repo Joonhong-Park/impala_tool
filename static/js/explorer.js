@@ -61,7 +61,7 @@ async function qeInit() {
   $('qe-add-cond').onclick   = qeAddCondRow;
 
   document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.onclick = () => qeSetPreset(parseInt(btn.dataset.h));
+    btn.onclick = () => qeSetPreset(parseFloat(btn.dataset.h));
   });
 
   document.querySelector('.filters').addEventListener('keydown', e => {

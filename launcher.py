@@ -65,6 +65,7 @@ TUNNEL_SERVERS = [
     for s in _cfg["tunnel_servers"]
 ]
 
+NODE_NAME   = _cfg["node"]["name"]
 NODE_HOST   = _cfg["node"]["host"]
 NODE_PORT   = _cfg["node"]["port"]
 NODE_USER   = _cfg["node"]["user"]
@@ -170,7 +171,7 @@ class TunnelManager:
             )
         except Exception as e:
             raise RuntimeError(
-                f"터널 → node1 채널 수립 실패 ({NODE_HOST}:{NODE_PORT}): {e}"
+                f"터널 → {NODE_NAME} 채널 수립 실패 ({NODE_HOST}:{NODE_PORT}): {e}"
             )
 
         self.node_client = paramiko.SSHClient()
@@ -182,8 +183,8 @@ class TunnelManager:
             )
         except EOFError:
             raise RuntimeError(
-                f"node1({NODE_HOST}) 연결 중 EOF — "
-                "node1 비밀번호를 확인하거나 잠시 후 다시 시도하세요."
+                f"{NODE_NAME}({NODE_HOST}) 연결 중 EOF — "
+                f"{NODE_NAME} 비밀번호를 확인하거나 잠시 후 다시 시도하세요."
             )
 
         self.node_client.get_transport().set_keepalive(30)
@@ -277,7 +278,7 @@ class App(tk.Tk):
         frame.pack(padx=36)
 
         self.e_tunnel_pw = self._entry_row(frame, "터널링 서버 비밀번호")
-        self.e_node_pw   = self._entry_row(frame, f"node1 비밀번호  ({NODE_USER}@{NODE_HOST})")
+        self.e_node_pw   = self._entry_row(frame, f"{NODE_NAME} 비밀번호  ({NODE_USER}@{NODE_HOST})")
 
         self._save_var = tk.BooleanVar(value=False)
         chk_frame = tk.Frame(self, bg=BG)

@@ -9,6 +9,7 @@ tunnel_servers:
     user: tunnel_user2
 
 node:
+  name: node1
   host: node1
   port: 22
   user: node_user

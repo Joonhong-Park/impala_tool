@@ -106,7 +106,7 @@ async function qeLoadClusters() {
 function qeSetPreset(h) {
   _activeHours = h;
   document.querySelectorAll('.preset-btn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.dataset.h) === h);
+    b.classList.toggle('active', parseFloat(b.dataset.h) === h);
   });
   const now     = new Date();
   const fromStr = _toDatetimeLocal(new Date(now.getTime() - h * 3600 * 1000));

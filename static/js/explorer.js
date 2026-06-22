@@ -317,6 +317,7 @@ function qeRenderTable() {
   });
 
   qeRenderPagination(totalPages);
+  qeSyncHScroll();
 }
 
 /* 페이지네이션 렌더 */
@@ -405,6 +406,22 @@ async function qeDownloadProfile(clusterId, queryId) {
   } catch (e) {
     showToast(`다운로드 실패: ${e.message}`, true);
   }
+}
+
+/* 통합 가로 스크롤바 동기화 */
+function qeSyncHScroll() {
+  const bar   = $('qe-hscroll');
+  const inner = $('qe-hscroll-inner');
+  if (!bar || !inner) return;
+
+  const table = document.getElementById('qe-table');
+  inner.style.width = (table ? table.scrollWidth : 0) + 'px';
+
+  const wrap = document.querySelector('.tbl-wrap');
+  if (!wrap) return;
+
+  bar.onscroll  = () => { wrap.scrollLeft = bar.scrollLeft; };
+  wrap.onscroll = () => { bar.scrollLeft  = wrap.scrollLeft; };
 }
 
 /* 초기화 */

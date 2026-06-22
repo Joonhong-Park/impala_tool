@@ -264,7 +264,21 @@
 /* ══════════════════════════════════════════════
    EXPLORER TABLE
 ══════════════════════════════════════════════ */
-.tbl-wrap { overflow-x: auto; }
+.tbl-wrap { overflow-x: hidden; }
+
+/* 통합 가로 스크롤바 */
+#qe-hscroll {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  overflow-x: auto;
+  background: var(--c-bg);
+  border-top: 1px solid var(--c-border);
+  z-index: 40;
+}
+#qe-hscroll-inner { height: 1px; }
 
 table { width: 100%; border-collapse: collapse; }
 
@@ -379,6 +393,7 @@ tr.expanded .expand-btn { color: var(--c-accent); }
   gap: var(--sp-1);
   flex-shrink: 0;
   transition: background .2s;
+  margin-bottom: 14px;
 }
 
 .pg-info {

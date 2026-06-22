@@ -113,8 +113,9 @@ function qmSyncHScroll() {
   const inner = $('qm-hscroll-inner');
   if (!bar || !inner) return;
 
-  const table = document.querySelector('.qm-tbl');
-  inner.style.width = (table ? table.scrollWidth : 1100) + 'px';
+  const tables = document.querySelectorAll('.qm-tbl');
+  const maxW = Math.max(...Array.from(tables).map(t => t.scrollWidth), 1100);
+  inner.style.width = maxW + 'px';
 
   const wraps = document.querySelectorAll('.qm-tbl-wrap');
   let busy = false;

@@ -4,7 +4,7 @@
 
 #qm-wrap { display: block; }
 
-#qm-main { margin-left: 210px; min-width: 0; overflow-x: hidden; }
+#qm-main { margin-left: 210px; min-width: 0; overflow-x: clip; }
 
 /* ── 사이드바 ── */
 #qm-sidebar {

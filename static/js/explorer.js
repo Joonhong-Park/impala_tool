@@ -9,7 +9,7 @@ let _activeCluster = '';
 let _openRows      = new Set();
 let _sortCol       = 'startTime';
 let _sortAsc       = false;
-let _activeHours   = 1;
+let _activeHours   = 0.5;
 let _es            = null;
 let _page          = 1;
 const _pageSize    = 100;
@@ -53,7 +53,7 @@ async function qeInit() {
   _fpFrom = flatpickr($('qe-from'), fpOpts);
   _fpTo   = flatpickr($('qe-to'),   fpOpts);
 
-  qeSetPreset(1);
+  qeSetPreset(0.5);
 
   $('qe-search-btn').onclick = qeSearch;
   $('qe-reset-btn').onclick  = qeReset;
@@ -433,7 +433,7 @@ function qeReset() {
   $('qe-qtype').value = '';
   if (_fpFrom) _fpFrom.clear(); else $('qe-from').value = '';
   if (_fpTo)   _fpTo.clear();   else $('qe-to').value   = '';
-  qeSetPreset(1);
+  qeSetPreset(0.5);
   _resetStateTabs();
 
   if (_es) { _es.close(); _es = null; }
